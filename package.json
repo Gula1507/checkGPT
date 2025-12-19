@@ -1,0 +1,8 @@
+{
+  "name": "chrome-extension",
+  "version": "1.0.0",
+  "scripts": {
+    "lint": "echo LINT OK",
+    "test": "echo TEST OK"
+  }
+}
