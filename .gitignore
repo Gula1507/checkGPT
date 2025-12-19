@@ -1,0 +1,17 @@
+# IntelliJ / IDE
+.idea/
+*.iml
+/shelf/
+/.idea/workspace.xml
+/httpRequests/
+/dataSources/
+/dataSources.local.xml
+
+# Node / npm
+node_modules/
+
+# Build / Artifacts
+chrome-extension.zip
+
+# OS
+.DS_Store
