@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "lint": "echo LINT OK",
-    "test": "echo TEST OK"
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jsdom": "^22.1.0"
   }
 }
