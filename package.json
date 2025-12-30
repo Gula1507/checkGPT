@@ -1,8 +1,12 @@
 {
-  "name": "chrome-extension",
+  "name": "checkgpt",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "lint": "echo LINT OK",
-    "test": "echo TEST OK"
+    "test": "vitest",
+    "lint": "echo LINT OK"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0"
   }
 }
