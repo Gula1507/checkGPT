@@ -7,4 +7,9 @@ describe("isChatGPTTab", () => {
             isChatGPTTab([{ url: "https://chatgpt.com/chat" }])
         ).toBe(true);
     });
+    it("returns false for non ChatGPT urls", () => {
+        expect(
+            isChatGPTTab([{ url: "https://google.com" }])
+        ).toBe(false);
+    });
 });
