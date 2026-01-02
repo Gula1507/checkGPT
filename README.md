@@ -12,7 +12,7 @@ Für Anleitungen und Informationen nutzen Sie gern unser [Wiki](https://github.c
 - [Roadmap/Backlog](https://github.com/users/Gula1507/projects/2)
 - [Milestones](https://github.com/Gula1507/checkGPT/milestones)
 
-##DoD
+## DoD
 - Issue ist im Sprint Backlog eindeutig beschrieben und vollständig umgesetzt
 - Alle Akzeptanzkriterien (wenn sinnvoll) des Issues sind erfüllt und nachvollziehbar dokumentiert
 - Code ist (falls nötig) im entsprechenden GitHub-Repository committed und mit dem Issue verknüpft
