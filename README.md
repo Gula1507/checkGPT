@@ -1,33 +1,27 @@
 # CheckGPT - Prometheus
-
-## Description
+Wir sind Prometheus.
 Für umweltbewusste KI-Nutzer:innen soll unser Browser-Plugin eine fundierte und persönlich nachvoll-ziehbare Einschätzung des ökologischen Impacts der privaten KI-Nutzung anzeigen​
 
-## Links
-* [SharePoint](https://uoa-my.sharepoint.com/personal/msen494_uoa_auckland_ac_nz/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fmsen494%5Fuoa%5Fauckland%5Fac%5Fnz%2FDocuments%2FM3%5FIT%2DProjektmanagement&ga=1)
-* [Miro](https://miro.com/app/board/uXjVGcQSEfE=/)
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Getting Started
+-- Hier wird bald eine Installationsanleitung stehen --
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Für Anleitungen und Informationen nutzen Sie gern unser [Wiki](https://github.com/Gula1507/checkGPT/wiki)
 
 ## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+- [Roadmap/Backlog](https://github.com/users/Gula1507/projects/2)
+- [Milestones](https://github.com/Gula1507/checkGPT/milestones)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+##DoD
+- Issue ist im Sprint Backlog eindeutig beschrieben und vollständig umgesetzt
+- Alle Akzeptanzkriterien (wenn sinnvoll) des Issues sind erfüllt und nachvollziehbar dokumentiert
+- Code ist (falls nötig) im entsprechenden GitHub-Repository committed und mit dem Issue verknüpft
+- Pull Request ist (falls nötig) erstellt, aktuell und ohne offene Kommentare
+- Code Review wurde mindestens von einer weiteren Person durchgeführt und freigegeben
+- Build ist erfolgreich durchgelaufen
+- QM-Prüfung (funktional und ggf. fachlich) ist abgeschlossen und dokumentiert
+- Relevante Dokumentation (README, Kommentare, Wiki) ist aktualisiert
+- Issue ist in GitHub korrekt abgeschlossen und dem Sprint als „Done“ zugeordnet
 
 ## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+OpenSource
