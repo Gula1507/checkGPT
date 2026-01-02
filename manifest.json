@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "CI Test Extension",
+  "name": "CheckGPT Detector",
   "version": "1.0",
+  "description": "Test-Addon zur Erkennung von ChatGPT",
+  "permissions": ["tabs"],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "src/popup/popup.html"
   }
 }
