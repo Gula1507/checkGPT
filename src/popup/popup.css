@@ -95,7 +95,7 @@ input:checked + .slider::before {
 
 }
 
-.chips.single-row {
-    grid-template-columns: 1fr;
+.chips.center {
+    justify-content: center;
 }
 
