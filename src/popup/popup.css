@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     padding: 18px;
     min-width: 320px;
-    height: 300px;
+    height: 470px;
     background: #ffffff;
     box-sizing: border-box;
 }
@@ -80,7 +80,7 @@ input:checked + .slider::before {
 
 .chip strong {
     display: inline;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
 }
 
