@@ -1,0 +1,101 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 18px;
+    min-width: 320px;
+    height: 470px;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Toggle */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+/* Switch */
+.switch {
+    position: relative;
+    width: 34px;
+    height: 18px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #e5e5e5;
+    border-radius: 999px;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 2px;
+    top: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+input:checked + .slider {
+    background: #7c3aed;
+}
+
+input:checked + .slider::before {
+    transform: translateX(16px);
+}
+
+/* Metrics */
+.chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.chip {
+    border: 1px solid #e6e6e6;
+    border-radius: 14px; /* WENIGER rund */
+    padding: 8px;
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.25;
+    background: #fafafa;
+}
+
+.chip strong {
+    display: inline;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Hint */
+.hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    font-size: 13px;
+
+}
+
+.chips.center {
+    justify-content: center;
+}
+
