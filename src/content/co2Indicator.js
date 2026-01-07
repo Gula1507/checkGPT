@@ -52,8 +52,11 @@ function updateIndicator() {
     }
 
     indicator.style.left = `${left}px`;
+    const verticalOffset = -8;
+
     indicator.style.top =
-        `${rect.top + window.scrollY + rect.height / 2 - indicator.offsetHeight / 2}px`;
+        `${rect.top + window.scrollY + rect.height / 2 - indicator.offsetHeight / 2 + verticalOffset}px`;
+
 }
 
 requestAnimationFrame(() => {
