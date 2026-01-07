@@ -9,7 +9,7 @@ function updateIndicator() {
     if (!indicator) {
         indicator = document.createElement("div");
         indicator.id = ID;
-        indicator.textContent = "ca. 15g CO₂ heute verbraucht";
+        indicator.innerHTML = "ca. <strong>15g CO₂e</strong> <br> heute verbraucht";
 
         indicator.style.position = "absolute";
         indicator.style.left = "auto";
@@ -18,23 +18,27 @@ function updateIndicator() {
         indicator.style.bottom = "auto";
 
         indicator.style.display = "inline-block";
-        indicator.style.whiteSpace = "nowrap";
+        indicator.style.whiteSpace = "pre-line";
+        indicator.style.textAlign = "center";
         indicator.style.boxSizing = "border-box";
 
         indicator.style.fontFamily = "inherit";
-        indicator.style.fontSize = "10px";          // 👈 kleiner
-        indicator.style.color = "#9ca3af";
-        indicator.style.background = "rgba(0,0,0,0.45)";
-        indicator.style.padding = "2px 6px";        // 👈 schmaler
+        indicator.style.fontSize = "14px";
+        indicator.style.fontWeight = "500";
+
+        indicator.style.color = "#064E3B";
+        indicator.style.background = "#BBF7D0";
+        indicator.style.padding = "8px 14px";
         indicator.style.borderRadius = "999px";
         indicator.style.pointerEvents = "none";
         indicator.style.zIndex = "9999";
-
+        indicator.style.lineHeight = "1.2";
+        indicator.style.boxShadow = "0 1px 2px rgba(0,0,0,0.08)";
         document.body.appendChild(indicator);
     }
 
     const rect = input.getBoundingClientRect();
-    const gap = 100; // 👈 deutlich weiter rechts
+    const gap = 100;
     const indicatorWidth = indicator.offsetWidth;
 
     let left =
