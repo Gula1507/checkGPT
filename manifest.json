@@ -6,5 +6,11 @@
   "permissions": ["tabs"],
   "action": {
     "default_popup": "src/popup/popup.html"
-  }
+  },
+  "content_scripts": [
+    { "matches": ["https://chatgpt.com/*"],
+      "js": ["src/content/co2Indicator.js"],
+      "css": ["src/content/co2Indicator.css"]
+    }
+  ]
 }
