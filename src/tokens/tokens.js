@@ -9,6 +9,7 @@
  * 3. Extract the text from the *last* assistant message.
  * 4. Clean the text (remove buttons, icons, noise).
  * 5. Estimate tokens (approx 1 token = 4 characters).
+ * source: https://platform.openai.com/tokenizer
  * 6. Store the result in LocalStorage for later use.
  */
 
@@ -127,8 +128,8 @@ async function handleGenerationComplete() {
     const cleanText = extractedText.trim();
 
     // 3. TOKEN ESTIMATION (HEURISTIC)
-    // Directly using a complex tokenizer like OpenAI's `tiktoken` in a browser
-    // extension is too heavy for now.
+    // Directly using a complex tokenizer like OpenAI's `tiktoken` is possible, but too heavy for now.
+    // tiktoken: https://github.com/openai/tiktoken
     // Therefore, we use a common heuristic for text.
     // Rule of thumb: 1 token is approximately 4 characters.
     // This provides a reasonable, quick, and lightweight estimation.
