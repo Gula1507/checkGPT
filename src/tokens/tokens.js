@@ -16,21 +16,13 @@ let observer = null;
  */
 function checkGenerationStatus() {
   // Identify the stop button vs send button state
-  // "Stop" button usually appears when generating
-  // Send button usually has data-testid="send-button"
-  const sendButton = document.querySelector('[data-testid="send-button"]');
-  const stopButton = document.querySelector('[aria-label="Stop generating"]');
+  // We found that the stop button has data-testid="stop-button" or aria-label="Stop streaming"
+  const stopButton = document.querySelector('[data-testid="stop-button"]') ||
+    document.querySelector('[aria-label="Stop streaming"]');
 
   // Determine current state
   // If stop button exists, we are generating
   const currentlyGenerating = !!stopButton;
-
-  // Debug every state change or at least periodically if needed
-  // But since this is triggered by mutation, it might fire often.
-  // We'll log only if something interesting happens or just to verify we are running.
-  if (currentlyGenerating !== isGenerating) {
-    console.log(`[TokenExtractor] State change: Generating=${currentlyGenerating} (StopBtn=${!!stopButton}, SendBtn=${!!sendButton})`);
-  }
 
   if (isGenerating && !currentlyGenerating) {
     // Falling edge: Generation just finished
