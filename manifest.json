@@ -9,7 +9,8 @@
   },
   "content_scripts": [
     { "matches": ["https://chatgpt.com/*"],
-      "js": ["src/content/co2Indicator.js"],
+      "js": ["src/content/co2Indicator.js",
+        "src/content/promptDetector.js"],
       "css": []
     }
   ]
