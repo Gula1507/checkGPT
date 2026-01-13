@@ -126,6 +126,18 @@ async function handleGenerationComplete() {
 
       console.log(`[CheckGPT] Saved response: ${tokenCount} tokens.`);
 
+      // -----------------------
+      // vorrübergehend!
+      // mit diesem event lassen wir das indicator.js wissen, dass die tokenanzahl geändert wurde
+      // das sollten wir wahrscheinlich refactoren, sobald tatsächliche Logik implementiert ist
+      // z.B. erkennen, dass eine promt abgeschickt wurde, ist es ein Bild oder Text, etc.
+      // - Lennart
+
+      window.dispatchEvent(new CustomEvent("checkgpt-tokens-updated", {
+        detail: { tokenCount }
+      }));
+      // -----------------------
+
     } catch (storageError) {
       console.error("Failed to save to localStorage:", storageError);
     }
@@ -157,7 +169,7 @@ function setupGenerationObserver() {
     attributeFilter: ['disabled', 'aria-label', 'data-testid']
   });
 
-  console.log("CheckGPT: Token observer initialized.");
+  console.log("CheckGPT: Token observer initialized. v.53.1");
 }
 
 /**
