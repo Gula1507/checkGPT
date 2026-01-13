@@ -4,7 +4,8 @@
   "version": "1.1",
   "description": "Test-Addon zur Berechnung von Tokens je Prompt",
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage"
   ],
   "action": {
     "default_popup": "src/popup/popup.html"
@@ -16,6 +17,7 @@
       ],
       "js": [
         "src/content/co2Indicator.js",
+        "src/content/promptDetector.js",
         "src/utils/tokens.js"
       ],
       "css": []

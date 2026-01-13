@@ -4,13 +4,12 @@
  * This script is responsible for estimating the token usage of ChatGPT's responses.
  * 
  * CORE LOGIC:
- * 1. Monitor the DOM for changes in the last assistant message.
- * 2. Detect when text stops changing for a set timeout (Idle Detection).
- * 3. Extract the text from the *last* assistant message.
- * 4. Clean the text (remove buttons, icons, noise).
- * 5. Estimate tokens (approx 1 token = 4 characters).
+ * 1. Listen for 'gpt-prompt-complete' event from promptDetector.js
+ * 2. Extract the text from the *last* assistant message.
+ * 3. Clean the text (remove buttons, icons, noise).
+ * 4. Estimate tokens (approx 1 token = 4 characters).
  * source: https://platform.openai.com/tokenizer
- * 6. Store the result in LocalStorage for later use.
+ * 5. Store the result in LocalStorage for later use.
  * 
  * DATA CONSUMPTION:
  * The estimated token count is saved to the browser's LocalStorage under the key 'tokenUsageHistory'.
@@ -19,52 +18,6 @@
  *    const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
  *    const lastCount = history[history.length - 1]; 
  */
-
-// Global state to track generation status
-let observer = null;
-let lastAssistantText = "";
-let lastChangeTime = 0;
-let generationRunning = false;
-
-const INACTIVE_TIMEOUT = 800;
-
-/**
- * Checks if the response generation has finished (idle timeout).
- */
-function checkIdle() {
-  if (!generationRunning) return;
-
-  if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
-    generationRunning = false;
-    console.log("✅ Prompt wurde ausgelöst (Antwort abgeschlossen)");
-    handleGenerationComplete();
-  }
-}
-
-/**
- * MutationObserver Callback
- * Tracks changes to the last assistant message to detect activity.
- */
-function onMutation() {
-  const messages = document.querySelectorAll(
-    '[data-message-author-role="assistant"]'
-  );
-  if (!messages.length) return;
-
-  const lastMessage = messages[messages.length - 1];
-  const text = lastMessage.innerText.trim();
-
-  // If text changed, update timestamp
-  if (text && text !== lastAssistantText) {
-    lastAssistantText = text;
-    lastChangeTime = Date.now();
-
-    if (!generationRunning) {
-      generationRunning = true;
-      console.log("✍️ Antwortgenerierung gestartet");
-    }
-  }
-}
 
 /**
  * Main logic to extract the AI's response text, clean it, estimate token count,
@@ -135,7 +88,11 @@ async function handleGenerationComplete() {
       history.push(tokenCount);
       localStorage.setItem('tokenUsageHistory', JSON.stringify(history));
       // Sync to chrome.storage.local for popup access
-      chrome.storage.local.set({ tokenUsageHistory: history });
+      if (chrome && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ tokenUsageHistory: history });
+      } else {
+        console.warn("[CheckGPT] chrome.storage.local not available. Is the 'storage' permission in manifest?");
+      }
 
       console.log(`[CheckGPT] Saved response: ${tokenCount} tokens.`);
 
@@ -154,40 +111,15 @@ async function handleGenerationComplete() {
 }
 
 /**
- * OBSERVER SETUP
- */
-function setupObserver() {
-  if (observer) {
-    observer.disconnect();
-  }
-
-  observer = new MutationObserver(onMutation);
-
-  // Watch for character data changes (typing) and child list changes (new blocks)
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    characterData: true
-  });
-
-  // Start the idle checker
-  setInterval(checkIdle, 300);
-
-  console.log("CheckGPT: Token observer initialized (Idle detection mode).");
-}
-
-/**
  * INITIALIZATION
- * Start the observer when the page is fully loaded.
+ * Connect to the central prompt detector.
  */
 function initialize() {
-  if (document.readyState === "complete" || document.readyState === "interactive") {
-    setupObserver();
-  } else {
-    document.addEventListener("DOMContentLoaded", () => {
-      setupObserver();
-    });
-  }
+  window.addEventListener("gpt-prompt-complete", () => {
+    console.log("CheckGPT: Token computation triggered by prompt detector.");
+    handleGenerationComplete();
+  });
+  console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }
 
 // Start

@@ -47,6 +47,10 @@ function onMutation() {
  */
 function handlePromptDetected() {
     console.log("📄 Antworttext:", lastAssistantText);
+    // Dispatch event for other scripts (like tokens.js)
+    window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {
+        detail: { text: lastAssistantText }
+    }));
 }
 
 /**

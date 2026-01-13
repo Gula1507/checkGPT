@@ -1,5 +1,5 @@
 /**
- * Gemeinsames Modul zur Energieberechnung
+ * Modul zur Energieberechnung
  * ====================================================
  *
  * Setzt die EcoLogits-Methodik um – voll wissenschaftlich und so:
@@ -11,11 +11,11 @@
  */
 export const ECOLOGITS_CONSTANTS = {
     // Energie-Koeffizienten
-    ENERGY_ALPHA: 8.91e-5,    // Energie-Koeffizient (Wh/Token/Mrd-Params)
+    ENERGY_ALPHA: 8.91e-5,    // Energie-Koeffizient (Wh/Token/Mrd-Parameter)
     ENERGY_BETA: 1.43e-3,     // Basis-Energie pro Token (Wh/Token)
 
     // Latenz-Koeffizienten
-    LATENCY_ALPHA: 8.02e-4,   // Latenz-Koeffizient (s/Token/Mrd-Params)
+    LATENCY_ALPHA: 8.02e-4,   // Latenz-Koeffizient (s/Token/Mrd-Parameter)
     LATENCY_BETA: 2.23e-2,    // Basis-Latenz pro Token (s/Token)
 
     // Infrastruktur-Kram
@@ -109,14 +109,6 @@ export function calculateCO2(energyKWh) {
     return energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
 }
 
-/**
- * Berechnet die äquivalente Autofahrt in Metern
- * @param {number} co2Grams
- * @returns {number} Meter
- */
-export function calculateCarDistance(co2Grams) {
-    return co2Grams / CO2_GRAMS_PER_METER_DRIVEN;
-}
 
 /**
  * Hilfsfunktion für Energie pro Token (Wh/Token)
