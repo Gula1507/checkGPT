@@ -68,21 +68,26 @@ export function calculateEnergy(outputTokens) {
 
     // Schritt 1: Energie pro Token (pro GPU) in Wh
     const energyPerToken = ENERGY_ALPHA * ACTIVE_PARAMS_BILLIONS + ENERGY_BETA;
+    console.log(`Step 1 - Energy per Token (Wh): ${energyPerToken}`);
 
     // Schritt 2: Anzahl der benötigten GPUs
     const memoryRequired = 1.2 * TOTAL_PARAMS * GPU_BITS / 8;
     const numGPUs = Math.ceil(memoryRequired / (GPU_MEMORY * 1e9));
+    console.log(`Step 2 - Memory Required: ${memoryRequired}, Num GPUs: ${numGPUs}`);
 
     // Schritt 3: Latenz berechnen
     const latencyPerToken = LATENCY_ALPHA * ACTIVE_PARAMS_BILLIONS + LATENCY_BETA;
     const totalLatency = outputTokens * latencyPerToken; // in Sekunden
+    console.log(`Step 3 - Latency per Token: ${latencyPerToken}, Total Latency (s): ${totalLatency}`);
 
     // Schritt 4: GPU-Energie (Wh)
     const gpuEnergy = outputTokens * energyPerToken * numGPUs;
+    console.log(`Step 4 - GPU Energy (Wh): ${gpuEnergy}`);
 
     // Schritt 5: Server-Energie (ohne GPU)
     // Leistung (kW) * Zeit (s) -> kWs. / 3600 -> kWh. * 1000 -> Wh.
     const serverEnergyWithoutGPU = totalLatency * SERVER_POWER_WITHOUT_GPU * numGPUs / INSTALLED_GPUS / 3600 * 1000;
+    console.log(`Step 5 - Server Energy w/o GPU (Wh): ${serverEnergyWithoutGPU}`);
 
     // Schritt 6: Gesamte Server-Energie (Wh)
     const serverEnergy = serverEnergyWithoutGPU + gpuEnergy;
