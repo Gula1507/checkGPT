@@ -22,3 +22,6 @@ Um das Browser Add-On nutzen zu können, müssen Sie unsere Erweiterung vorerst 
 <img width="417" height="418" alt="grafik" src="https://github.com/user-attachments/assets/cc0870bf-5d5c-40f1-9762-ed40742940a2" />
 
 Sobald es ein entsprechendes Release gibt, wird das Add-On auch im Erweiterungs-Store verfügbar sein.
+
+## License
+[MIT Lizenz](https://github.com/Gula1507/checkGPT/blob/main/LICENSE)
