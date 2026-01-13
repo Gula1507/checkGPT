@@ -1,6 +1,28 @@
 const ID = "checkgpt-co2-indicator";
 const WRAPPER_ID = "checkgpt-wrapper";
 
+// Lightweight easing function for a nice rolling effect
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+
+        // Easing: easeOutExpo (starts fast, slows down gently)
+        // This creates a much smoother, "premium" feel than partial linear.
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+        obj.innerHTML = Math.floor(ease * (end - start) + start);
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            obj.innerHTML = end;
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
 function updateIndicator() {
     const input = document.querySelector("#prompt-textarea");
     if (!input) return;
@@ -50,14 +72,16 @@ function updateIndicator() {
         console.error("CheckGPT: Error reading token history", e);
     }
 
-    const htmlContent = `Last Prompt: <br> <strong>${lastTokenCount} Tokens</strong>`;
-    // -----------------------
+    // Wir nutzen dataset, um den aktuellen Stand zu speichern
+    // und verhindern unnötiges Re-Rendern (z.B. beim Scrollen)
 
     let indicator = document.getElementById(ID);
 
     if (!indicator) {
         indicator = document.createElement("div");
         indicator.id = ID;
+        // Speichere den initialen Wert
+        indicator.dataset.currentCount = lastTokenCount;
 
         indicator.style.whiteSpace = "pre-line";
         indicator.style.textAlign = "center";
@@ -72,7 +96,8 @@ function updateIndicator() {
         indicator.style.boxShadow = "0 1px 2px rgba(0,0,0,0.08)";
         indicator.style.flexShrink = "0";
 
-        indicator.innerHTML = htmlContent;
+        // Initial HTML structure with a span for the number
+        indicator.innerHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
 
         wrapper.appendChild(indicator);
     } else {
@@ -83,9 +108,21 @@ function updateIndicator() {
         indicator.style.position = "static";
         indicator.style.transform = "none";
 
-        // Update content if changed
-        if (indicator.innerHTML !== htmlContent) {
-            indicator.innerHTML = htmlContent;
+        // Animation Logic
+        const currentDisplayed = parseInt(indicator.dataset.currentCount || "0");
+
+        if (currentDisplayed !== lastTokenCount) {
+            // Wert hat sich geändert -> Animation triggern!
+            const countElement = indicator.querySelector("#checkgpt-count-anim");
+            if (countElement) {
+                animateValue(countElement, currentDisplayed, lastTokenCount, 1000); // 1s Animation
+            } else {
+                // Fallback falls Struktur kaputt oder alt
+                indicator.innerHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
+            }
+
+            // Update dataset
+            indicator.dataset.currentCount = lastTokenCount;
         }
     }
 }
