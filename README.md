@@ -24,4 +24,4 @@ Um das Browser Add-On nutzen zu können, müssen Sie unsere Erweiterung vorerst 
 Sobald es ein entsprechendes Release gibt, wird das Add-On auch im Erweiterungs-Store verfügbar sein.
 
 ## License
-OpenSource
+[MIT Lizenz](https://github.com/Gula1507/checkGPT/blob/main/LICENSE)

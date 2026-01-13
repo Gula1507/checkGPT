@@ -1,15 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "CheckGPT Detector",
-  "version": "1.0",
-  "description": "Test-Addon zur Erkennung von ChatGPT",
-  "permissions": ["tabs"],
+  "name": "CheckGPT ",
+  "version": "1.1",
+  "description": "Test-Addon zur Berechnung von Tokens je Prompt",
+  "permissions": [
+    "tabs"
+  ],
   "action": {
     "default_popup": "src/popup/popup.html"
   },
   "content_scripts": [
-    { "matches": ["https://chatgpt.com/*"],
-      "js": ["src/content/co2Indicator.js"],
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "src/content/co2Indicator.js",
+        "src/tokens/tokens.js"
+      ],
       "css": []
     }
   ]
