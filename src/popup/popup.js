@@ -20,6 +20,7 @@ function updateStats() {
         const promptCount = history.length;
 
         const totalKWh = calculateEnergy(totalTokens);
+        // Display in Wh
         const totalWh = totalKWh * 1000;
         const totalCO2 = calculateCO2(totalKWh);
         const carMeters = calculateCarDistance(totalCO2);

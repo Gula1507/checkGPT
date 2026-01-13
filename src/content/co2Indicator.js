@@ -106,9 +106,9 @@ function updateIndicator() {
 
         if (calculator) {
             const kwh = calculator.calculateEnergy(lastTokenCount);
-            const gCo2 = calculator.calculateCO2(kwh);
+            const co2Emissions = calculator.calculateCO2(kwh);
 
-            textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${gCo2.toFixed(2)} g CO2</span>`;
+            textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${co2Emissions.toFixed(2)} g CO2</span>`;
         }
 
         indicator.innerHTML = textHTML;
@@ -135,8 +135,8 @@ function updateIndicator() {
                 let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
                 if (calculator) {
                     const kwh = calculator.calculateEnergy(lastTokenCount);
-                    const gCo2 = calculator.calculateCO2(kwh);
-                    textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${gCo2.toFixed(2)} g CO2</span>`;
+                    const co2Emissions = calculator.calculateCO2(kwh);
+                    textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${co2Emissions.toFixed(2)} g CO2</span>`;
                 }
                 indicator.innerHTML = textHTML;
             }
