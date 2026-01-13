@@ -134,20 +134,15 @@ async function handleGenerationComplete() {
 
       history.push(tokenCount);
       localStorage.setItem('tokenUsageHistory', JSON.stringify(history));
+      // Sync to chrome.storage.local for popup access
+      chrome.storage.local.set({ tokenUsageHistory: history });
 
       console.log(`[CheckGPT] Saved response: ${tokenCount} tokens.`);
 
-      // -----------------------
-      // vorrübergehend!
-      // mit diesem event lassen wir das indicator.js wissen, dass die tokenanzahl geändert wurde
-      // das sollten wir wahrscheinlich refactoren, sobald tatsächliche Logik implementiert ist
-      // z.B. erkennen, dass eine promt abgeschickt wurde, ist es ein Bild oder Text, etc.
-      // - Lennart
-
+      // mit diesem event lassen wir andere scripts wissen, dass die tokenanzahl geändert wurde
       window.dispatchEvent(new CustomEvent("checkgpt-tokens-updated", {
         detail: { tokenCount }
       }));
-      // -----------------------
 
     } catch (storageError) {
       console.error("Failed to save to localStorage:", storageError);

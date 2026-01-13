@@ -1,5 +1,16 @@
 const ID = "checkgpt-co2-indicator";
 const WRAPPER_ID = "checkgpt-wrapper";
+let calculator = null;
+
+(async () => {
+    try {
+        const src = chrome.runtime.getURL("src/utils/calculator.js");
+        calculator = await import(src);
+        updateIndicator(); // Refresh once loaded
+    } catch (err) {
+        console.error("CheckGPT: Could not load calculator module", err);
+    }
+})();
 
 //animation für die zahlen im Indicator
 function animateValue(obj, start, end, duration) {
@@ -54,11 +65,8 @@ function updateIndicator() {
     form.style.margin = "0";
 
     // -----------------------
-    // vorrübergehend!
-    // hier wird die tokenanzahl von tokens.js abgerufen
-    // das sollten wir wahrscheinlich refactoren, sobald tatsächliche CO2 Werte verfügbar sind
-    // Das sollte nicht im indicator.js passieren, weil die CO2 werden auch im popup angezeigt werden
-    // - Lennart
+    // Retrieve token count
+    // -----------------------
     let lastTokenCount = 0;
     try {
         const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
@@ -93,8 +101,17 @@ function updateIndicator() {
         indicator.style.boxShadow = "0 1px 2px rgba(0,0,0,0.08)";
         indicator.style.flexShrink = "0";
 
-        // Initial HTML structure with a span for the number
-        indicator.innerHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
+        // Initial HTML structure
+        let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
+
+        if (calculator) {
+            const kwh = calculator.calculateEnergy(lastTokenCount);
+            const gCo2 = calculator.calculateCO2(kwh);
+
+            textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${gCo2.toFixed(2)} g CO2</span>`;
+        }
+
+        indicator.innerHTML = textHTML;
 
         wrapper.appendChild(indicator);
     } else {
@@ -114,8 +131,14 @@ function updateIndicator() {
             if (countElement) {
                 animateValue(countElement, currentDisplayed, lastTokenCount, 1000); // 1s Animation
             } else {
-                // Fallback falls Struktur kaputt oder alt
-                indicator.innerHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
+                // Fallback
+                let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
+                if (calculator) {
+                    const kwh = calculator.calculateEnergy(lastTokenCount);
+                    const gCo2 = calculator.calculateCO2(kwh);
+                    textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${gCo2.toFixed(2)} g CO2</span>`;
+                }
+                indicator.innerHTML = textHTML;
             }
 
             // Update dataset

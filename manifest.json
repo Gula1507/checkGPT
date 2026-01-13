@@ -16,9 +16,19 @@
       ],
       "js": [
         "src/content/co2Indicator.js",
-        "src/tokens/tokens.js"
+        "src/utils/tokens.js"
       ],
       "css": []
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/utils/calculator.js"
+      ],
+      "matches": [
+        "https://chatgpt.com/*"
+      ]
     }
   ]
 }
