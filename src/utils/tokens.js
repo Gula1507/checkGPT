@@ -23,39 +23,45 @@
  * Main logic to extract the AI's response text, clean it, estimate token count,
  * and save the result. This function is ONLY called once per AI response.
  */
-async function handleGenerationComplete() {
+async function handleGenerationComplete(providedText = null) {
   try {
-    // 1. SELECT LAST ASSISTANT MESSAGE
-    // We isolate the most recent message to ensure we only count the new content.
-    const assistantMessages = [...document.querySelectorAll('[data-message-author-role="assistant"]')];
+    let cleanText = "";
 
-    if (assistantMessages.length === 0) {
-      console.warn("No assistant messages found. This may happen if the page was cleared or an error occurred.");
-      return;
+    if (providedText) {
+      cleanText = providedText.trim();
+    } else {
+      // Fallback: SELECT LAST ASSISTANT MESSAGE
+      // We isolate the most recent message to ensure we only count the new content.
+      const assistantMessages = [...document.querySelectorAll('[data-message-author-role="assistant"]')];
+
+      if (assistantMessages.length === 0) {
+        console.warn("No assistant messages found. This may happen if the page was cleared or an error occurred.");
+        return;
+      }
+
+      const lastMessageNode = assistantMessages[assistantMessages.length - 1];
+
+      // 2. CLEAN TEXT (CLONING STRATEGY)
+      // We clone the node (deep copy) so we can modify it without altering 
+      // the user's visible DOM. We then strip out UI artifacts (buttons, icons, disclaimers)
+      // to ensure we are only counting the actual tokens used by the AI's text.
+      const clonedNode = lastMessageNode.cloneNode(true);
+
+      const uiSelectors = [
+        'button',         // "Copy code", "Regenerate" buttons
+        '.icon',          // SVG icons
+        '[aria-label]',   // Accessibility labels that add hidden text
+        '.text-xs'        // Footer disclaimers
+      ];
+
+      uiSelectors.forEach(selector => {
+        const elements = clonedNode.querySelectorAll(selector);
+        elements.forEach(el => el.remove());
+      });
+
+      const extractedText = clonedNode.innerText || clonedNode.textContent || "";
+      cleanText = extractedText.trim();
     }
-
-    const lastMessageNode = assistantMessages[assistantMessages.length - 1];
-
-    // 2. CLEAN TEXT (CLONING STRATEGY)
-    // We clone the node (deep copy) so we can modify it without altering 
-    // the user's visible DOM. We then strip out UI artifacts (buttons, icons, disclaimers)
-    // to ensure we are only counting the actual tokens used by the AI's text.
-    const clonedNode = lastMessageNode.cloneNode(true);
-
-    const uiSelectors = [
-      'button',         // "Copy code", "Regenerate" buttons
-      '.icon',          // SVG icons
-      '[aria-label]',   // Accessibility labels that add hidden text
-      '.text-xs'        // Footer disclaimers
-    ];
-
-    uiSelectors.forEach(selector => {
-      const elements = clonedNode.querySelectorAll(selector);
-      elements.forEach(el => el.remove());
-    });
-
-    const extractedText = clonedNode.innerText || clonedNode.textContent || "";
-    const cleanText = extractedText.trim();
 
     // 3. TOKEN ESTIMATION (HEURISTIC)
     // We use a character-count heuristic (chars/4) instead of a full tokenizer library (tiktoken).
@@ -115,9 +121,10 @@ async function handleGenerationComplete() {
  * Connect to the central prompt detector.
  */
 function initialize() {
-  window.addEventListener("gpt-prompt-complete", () => {
+  window.addEventListener("gpt-prompt-complete", (event) => {
     console.log("CheckGPT: Token computation triggered by prompt detector.");
-    handleGenerationComplete();
+    const text = event.detail ? event.detail.text : null;
+    handleGenerationComplete(text);
   });
   console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }

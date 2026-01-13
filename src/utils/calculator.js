@@ -100,6 +100,7 @@ export function calculateEnergy(outputTokens) {
     const normalizedEnergyWh = Math.max(totalEnergyWh, minEnergyWh);
 
     // Rückgabe in kWh
+    console.log(`[CheckGPT] Calculated Wh for last prompt: ${totalEnergyWh}`);
     return normalizedEnergyWh / 1000;
 }
 
