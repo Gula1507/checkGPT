@@ -20,12 +20,12 @@ function animateValue(obj, start, end, duration) {
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
         const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
 
-        obj.innerHTML = Math.floor(ease * (end - start) + start);
+        obj.innerHTML = (ease * (end - start) + start).toFixed(2);
 
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
-            obj.innerHTML = end;
+            obj.innerHTML = end.toFixed(2);
         }
     };
     window.requestAnimationFrame(step);
@@ -77,6 +77,13 @@ function updateIndicator() {
         console.error("CheckGPT: Error reading token history", e);
     }
 
+    // Calculate CO2
+    let currentCo2 = 0;
+    if (calculator) {
+        const kwh = calculator.calculateEnergy(lastTokenCount);
+        currentCo2 = calculator.calculateCO2(kwh);
+    }
+
     // Wir nutzen dataset, um den aktuellen Stand zu speichern
     // und verhindern unnötiges Re-Rendern (z.B. beim Scrollen)
 
@@ -86,7 +93,7 @@ function updateIndicator() {
         indicator = document.createElement("div");
         indicator.id = ID;
         // Speichere den initialen Wert
-        indicator.dataset.currentCount = lastTokenCount;
+        indicator.dataset.currentValue = currentCo2;
 
         indicator.style.whiteSpace = "pre-line";
         indicator.style.textAlign = "center";
@@ -102,14 +109,7 @@ function updateIndicator() {
         indicator.style.flexShrink = "0";
 
         // Initial HTML structure
-        let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
-
-        if (calculator) {
-            const kwh = calculator.calculateEnergy(lastTokenCount);
-            const co2Emissions = calculator.calculateCO2(kwh);
-
-            textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${co2Emissions.toFixed(2)} g CO2</span>`;
-        }
+        let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
 
         indicator.innerHTML = textHTML;
 
@@ -123,26 +123,21 @@ function updateIndicator() {
         indicator.style.transform = "none";
 
         // Animation Logic
-        const currentDisplayed = parseInt(indicator.dataset.currentCount || "0");
+        const displayedValue = parseFloat(indicator.dataset.currentValue || "0");
 
-        if (currentDisplayed !== lastTokenCount) {
+        if (Math.abs(displayedValue - currentCo2) > 0.001) {
             // Wert hat sich geändert -> Animation triggern!
             const countElement = indicator.querySelector("#checkgpt-count-anim");
             if (countElement) {
-                animateValue(countElement, currentDisplayed, lastTokenCount, 1000); // 1s Animation
+                animateValue(countElement, displayedValue, currentCo2, 1000); // 1s Animation
             } else {
                 // Fallback
-                let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${lastTokenCount}</span> Tokens</strong>`;
-                if (calculator) {
-                    const kwh = calculator.calculateEnergy(lastTokenCount);
-                    const co2Emissions = calculator.calculateCO2(kwh);
-                    textHTML += `<br><span style="font-size:0.8em; opacity:0.8;">~${co2Emissions.toFixed(2)} g CO2</span>`;
-                }
+                let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
                 indicator.innerHTML = textHTML;
             }
 
             // Update dataset
-            indicator.dataset.currentCount = lastTokenCount;
+            indicator.dataset.currentValue = currentCo2;
         }
     }
 }
