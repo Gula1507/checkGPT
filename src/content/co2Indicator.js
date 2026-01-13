@@ -1,15 +1,12 @@
 const ID = "checkgpt-co2-indicator";
 const WRAPPER_ID = "checkgpt-wrapper";
 
-// Lightweight easing function for a nice rolling effect
+//animation für die zahlen im Indicator
 function animateValue(obj, start, end, duration) {
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-
-        // Easing: easeOutExpo (starts fast, slows down gently)
-        // This creates a much smoother, "premium" feel than partial linear.
         const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
 
         obj.innerHTML = Math.floor(ease * (end - start) + start);

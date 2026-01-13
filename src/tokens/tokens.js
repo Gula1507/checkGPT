@@ -4,8 +4,8 @@
  * This script is responsible for estimating the token usage of ChatGPT's responses.
  * 
  * CORE LOGIC:
- * 1. Monitor the DOM to detect when the AI is generating text ("Stop" button visible).
- * 2. Detect when generation stops (Transition from "Stop" button -> "Send" button).
+ * 1. Monitor the DOM for changes in the last assistant message.
+ * 2. Detect when text stops changing for a set timeout (Idle Detection).
  * 3. Extract the text from the *last* assistant message.
  * 4. Clean the text (remove buttons, icons, noise).
  * 5. Estimate tokens (approx 1 token = 4 characters).
@@ -20,39 +20,50 @@
  *    const lastCount = history[history.length - 1]; 
  */
 
-// Global state to track if we were previously generating.
-// This allows us to detect the "falling edge" (when generation stops).
-let isGenerating = false;
+// Global state to track generation status
 let observer = null;
+let lastAssistantText = "";
+let lastChangeTime = 0;
+let generationRunning = false;
+
+const INACTIVE_TIMEOUT = 800;
 
 /**
- * Checks the current generation status of the AI interface.
- * This function is called whenever the DOM changes (via MutationObserver).
+ * Checks if the response generation has finished (idle timeout).
  */
-function checkGenerationStatus() {
-  /**
-   * DOM SELECTORS:
-   * To determine if the AI is currently generating a response, we look for the
-   * presence of a "Stop generating" button. 
-   *
-   * We use multiple selectors because ChatGPT's internal attributes (data-testid)
-   * or structure can change. The selectors below have proven stable for active generation detection.
-   */
-  const stopButton = document.querySelector('[data-testid="stop-button"]') ||
-    document.querySelector('[aria-label="Stop streaming"]');
+function checkIdle() {
+  if (!generationRunning) return;
 
-  const currentlyGenerating = !!stopButton;
-
-  // DETECTING COMPLETION (The "Falling Edge"):
-  // We monitor the transition from TRUE (generating) to FALSE (finished).
-  // This precise moment indicates that the full response is now on screen.
-  if (isGenerating && !currentlyGenerating) {
-    console.log("Generation finished. Starting token extraction...");
+  if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
+    generationRunning = false;
+    console.log("✅ Prompt wurde ausgelöst (Antwort abgeschlossen)");
     handleGenerationComplete();
   }
+}
 
-  // Update logic state for the next cycle
-  isGenerating = currentlyGenerating;
+/**
+ * MutationObserver Callback
+ * Tracks changes to the last assistant message to detect activity.
+ */
+function onMutation() {
+  const messages = document.querySelectorAll(
+    '[data-message-author-role="assistant"]'
+  );
+  if (!messages.length) return;
+
+  const lastMessage = messages[messages.length - 1];
+  const text = lastMessage.innerText.trim();
+
+  // If text changed, update timestamp
+  if (text && text !== lastAssistantText) {
+    lastAssistantText = text;
+    lastChangeTime = Date.now();
+
+    if (!generationRunning) {
+      generationRunning = true;
+      console.log("✍️ Antwortgenerierung gestartet");
+    }
+  }
 }
 
 /**
@@ -149,27 +160,25 @@ async function handleGenerationComplete() {
 
 /**
  * OBSERVER SETUP
- * We use a MutationObserver instead of polling (setInterval).
- * REASON: An Observer triggers ONLY when the DOM actually changes, which is much more efficient.
  */
-function setupGenerationObserver() {
+function setupObserver() {
   if (observer) {
     observer.disconnect();
   }
 
-  observer = new MutationObserver((mutations) => {
-    checkGenerationStatus();
-  });
+  observer = new MutationObserver(onMutation);
 
-  // Watch for changes that indicate a button state update (disabled, aria-labels)
+  // Watch for character data changes (typing) and child list changes (new blocks)
   observer.observe(document.body, {
     childList: true,
     subtree: true,
-    attributes: true,
-    attributeFilter: ['disabled', 'aria-label', 'data-testid']
+    characterData: true
   });
 
-  console.log("CheckGPT: Token observer initialized. v.53.1");
+  // Start the idle checker
+  setInterval(checkIdle, 300);
+
+  console.log("CheckGPT: Token observer initialized (Idle detection mode).");
 }
 
 /**
@@ -178,10 +187,10 @@ function setupGenerationObserver() {
  */
 function initialize() {
   if (document.readyState === "complete" || document.readyState === "interactive") {
-    setupGenerationObserver();
+    setupObserver();
   } else {
     document.addEventListener("DOMContentLoaded", () => {
-      setupGenerationObserver();
+      setupObserver();
     });
   }
 }
