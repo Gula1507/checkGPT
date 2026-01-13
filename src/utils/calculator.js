@@ -1,54 +1,54 @@
 /**
- * Shared Energy Calculator Module
+ * Gemeinsames Modul zur Energieberechnung
  * ====================================================
  *
- * Implements the EcoLogits methodology from:
+ * Setzt die EcoLogits-Methodik um – voll wissenschaftlich und so:
  * https://ecologits.ai/0.2/methodology/llm_inference/
  */
 
 /**
- * EcoLogits methodology constants for LLM energy estimation
+ * Konstanten für die EcoLogits-Methodik (damit wir wissen, was der LLM verbrät)
  */
 export const ECOLOGITS_CONSTANTS = {
-    // Energy model coefficients
-    ENERGY_ALPHA: 8.91e-5,    // Energy coefficient (Wh/token/B-params)
-    ENERGY_BETA: 1.43e-3,     // Base energy per token (Wh/token)
+    // Energie-Koeffizienten
+    ENERGY_ALPHA: 8.91e-5,    // Energie-Koeffizient (Wh/Token/Mrd-Params)
+    ENERGY_BETA: 1.43e-3,     // Basis-Energie pro Token (Wh/Token)
 
-    // Latency model coefficients
-    LATENCY_ALPHA: 8.02e-4,   // Latency coefficient (s/token/B-params)
-    LATENCY_BETA: 2.23e-2,    // Base latency per token (s/token)
+    // Latenz-Koeffizienten
+    LATENCY_ALPHA: 8.02e-4,   // Latenz-Koeffizient (s/Token/Mrd-Params)
+    LATENCY_BETA: 2.23e-2,    // Basis-Latenz pro Token (s/Token)
 
-    // Infrastructure parameters
-    PUE: 1.2,                 // Power Usage Effectiveness for data centers
-    GPU_MEMORY: 80,           // GPU memory in GB (NVIDIA A100)
-    SERVER_POWER_WITHOUT_GPU: 1, // Server power excluding GPUs (kW)
-    INSTALLED_GPUS: 8,        // Typical GPUs per server
-    GPU_BITS: 4,              // Quantization level (4-bit)
+    // Infrastruktur-Kram
+    PUE: 1.2,                 // PUE (Wie effizient das Rechenzentrum ist)
+    GPU_MEMORY: 80,           // GPU-Speicher in GB (fette A100)
+    SERVER_POWER_WITHOUT_GPU: 1, // Server-Stromverbrauch ohne GPUs (in kW)
+    INSTALLED_GPUS: 8,        // Typische Anzahl GPUs pro Server
+    GPU_BITS: 4,              // Quantisierungs-Level (4-bit, also eher sparsam)
 
-    // Emissions
-    GERMAN_EMISSION_FACTOR: 0.363 // deutscher durchschnitt lt. Ticket (kgCO2eq/kWh)
+    // Emissionen
+    GERMAN_EMISSION_FACTOR: 0.363 // Deutscher Emissionsfaktor lt. Ticket (kgCO2eq/kWh)
 };
 
 /**
- * GPT-5 model parameters
+ * Parameter für GPT-5 (oder was auch immer gerade aktuell ist)
  */
 export const GPT5_PARAMS = {
-    TOTAL_PARAMS: 300e9,        // 300 billion total parameters
-    ACTIVE_PARAMS: 60e9,        // 60 billion active parameters
-    ACTIVE_PARAMS_BILLIONS: 60, // Active params in billions
-    ACTIVATION_RATIO: 0.2,      // 20% activation ratio
+    TOTAL_PARAMS: 300e9,        // 300 Milliarden Parameter insgesamt
+    ACTIVE_PARAMS: 60e9,        // 60 Milliarden aktive Parameter
+    ACTIVE_PARAMS_BILLIONS: 60, // Aktive Parameter in Milliarden (für die Formel)
+    ACTIVATION_RATIO: 0.2,      // 20% Aktivierungsrate
     ACTIVE_PARAMS_MIN: 30e9,
     ACTIVE_PARAMS_MAX: 90e9
 };
 
-// Internal car emission constant
+// Konstante für Auto-Emissionen (ca. 120g/km -> 0.12g/m)
 const CO2_GRAMS_PER_METER_DRIVEN = 0.12;
 
 /**
- * Calculates energy calculation in kWh
- * Uses EcoLogits methodology.
+ * Berechnet den Energieverbrauch in kWh.
+ * Nutzt die EcoLogits-Logik.
  *
- * @param {number} outputTokens 
+ * @param {number} outputTokens - Anzahl der Token
  * @returns {number} kWh
  */
 export function calculateEnergy(outputTokens) {
@@ -66,61 +66,61 @@ export function calculateEnergy(outputTokens) {
 
     const { TOTAL_PARAMS, ACTIVE_PARAMS_BILLIONS } = GPT5_PARAMS;
 
-    // Step 1: Energy per token (per GPU) in Wh
+    // Schritt 1: Energie pro Token (pro GPU) in Wh
     const energyPerToken = ENERGY_ALPHA * ACTIVE_PARAMS_BILLIONS + ENERGY_BETA;
 
-    // Step 2: Number of GPUs
+    // Schritt 2: Anzahl der benötigten GPUs
     const memoryRequired = 1.2 * TOTAL_PARAMS * GPU_BITS / 8;
     const numGPUs = Math.ceil(memoryRequired / (GPU_MEMORY * 1e9));
 
-    // Step 3: Latency
+    // Schritt 3: Latenz berechnen
     const latencyPerToken = LATENCY_ALPHA * ACTIVE_PARAMS_BILLIONS + LATENCY_BETA;
-    const totalLatency = outputTokens * latencyPerToken; // seconds
+    const totalLatency = outputTokens * latencyPerToken; // in Sekunden
 
-    // Step 4: GPU Energy (Wh)
+    // Schritt 4: GPU-Energie (Wh)
     const gpuEnergy = outputTokens * energyPerToken * numGPUs;
 
-    // Step 5: Server Energy (Wh)
-    // Power (kW) * time (s) -> kWs. / 3600 -> kWh. * 1000 -> Wh.
+    // Schritt 5: Server-Energie (ohne GPU)
+    // Leistung (kW) * Zeit (s) -> kWs. / 3600 -> kWh. * 1000 -> Wh.
     const serverEnergyWithoutGPU = totalLatency * SERVER_POWER_WITHOUT_GPU * numGPUs / INSTALLED_GPUS / 3600 * 1000;
 
-    // Step 6: Total Server Energy (Wh)
+    // Schritt 6: Gesamte Server-Energie (Wh)
     const serverEnergy = serverEnergyWithoutGPU + gpuEnergy;
 
-    // Step 7: PUE
+    // Schritt 7: PUE draufrechnen
     const totalEnergyWh = PUE * serverEnergy;
 
-    // Ensure minimum energy
+    // Mindestwert sicherstellen (damit nicht 0 steht)
     const minEnergyWh = 0.01;
     const normalizedEnergyWh = Math.max(totalEnergyWh, minEnergyWh);
 
-    // Return in kWh
+    // Rückgabe in kWh
     return normalizedEnergyWh / 1000;
 }
 
 /**
- * Calculates CO2 emissions in grams
+ * Berechnet CO2-Emissionen in Gramm
  * @param {number} energyKWh 
- * @returns {number} grams CO2
+ * @returns {number} Gramm CO2
  */
 export function calculateCO2(energyKWh) {
-    // GERMAN_EMISSION_FACTOR is kg/kWh
-    // result kg -> * 1000 -> grams
+    // GERMAN_EMISSION_FACTOR ist kg/kWh
+    // Ergebnis kg -> * 1000 -> Gramm
     return energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
 }
 
 /**
- * Calculates equivalent meters driven by car
+ * Berechnet die äquivalente Autofahrt in Metern
  * @param {number} co2Grams
- * @returns {number} meters
+ * @returns {number} Meter
  */
 export function calculateCarDistance(co2Grams) {
     return co2Grams / CO2_GRAMS_PER_METER_DRIVEN;
 }
 
 /**
- * Helper to get energy per token (Wh/token)
- * (Actually, this is per-token-per-GPU + shared overhead... keeping it simple based on alpha/beta)
+ * Hilfsfunktion für Energie pro Token (Wh/Token)
+ * (Eigentlich pro-Token-pro-GPU + Overhead... wir halten's simpel mit Alpha/Beta)
  */
 export function getEnergyPerToken() {
     const { ENERGY_ALPHA, ENERGY_BETA } = ECOLOGITS_CONSTANTS;
