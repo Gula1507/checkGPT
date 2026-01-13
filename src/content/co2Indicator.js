@@ -149,7 +149,25 @@ requestAnimationFrame(() => {
 window.addEventListener("scroll", updateIndicator);
 window.addEventListener("resize", updateIndicator);
 
-new MutationObserver(updateIndicator).observe(document.body, {
+const observer = new MutationObserver((mutations) => {
+    const indicator = document.getElementById(ID);
+    let shouldUpdate = false;
+
+    for (const mutation of mutations) {
+        // Ignore mutations from the indicator itself (e.g. animation, style updates)
+        if (indicator && (mutation.target === indicator || indicator.contains(mutation.target))) {
+            continue;
+        }
+        shouldUpdate = true;
+        break;
+    }
+
+    if (shouldUpdate) {
+        updateIndicator();
+    }
+});
+
+observer.observe(document.body, {
     childList: true,
     subtree: true,
 });

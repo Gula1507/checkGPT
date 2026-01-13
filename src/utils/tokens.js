@@ -23,6 +23,12 @@
  * Main logic to extract the AI's response text, clean it, estimate token count,
  * and save the result. This function is ONLY called once per AI response.
  */
+let lastProcessedText = "";
+
+/**
+ * Main logic to extract the AI's response text, clean it, estimate token count,
+ * and save the result. This function is ONLY called once per AI response.
+ */
 async function handleGenerationComplete(providedText = null) {
   try {
     let cleanText = "";
@@ -69,9 +75,13 @@ async function handleGenerationComplete(providedText = null) {
     // Source: https://platform.openai.com/tokenizer
 
     const FALLBACK_VALUE = 20;
-    let tokenCount = FALLBACK_VALUE;
-
     if (cleanText.length > 0) {
+      if (cleanText === lastProcessedText) {
+        console.log("CheckGPT: Text identical to last processed. Skipping token computation.");
+        return;
+      }
+      lastProcessedText = cleanText;
+
       // Math.ceil ensures we account for partial tokens conservatively.
       tokenCount = Math.ceil(cleanText.length / 4);
     } else {
