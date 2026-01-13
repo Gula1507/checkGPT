@@ -64,6 +64,8 @@ export function calculateEnergy(outputTokens) {
         GPU_BITS
     } = ECOLOGITS_CONSTANTS;
 
+    console.log("CheckGPT: Berechnung Energieverbrauch mit calculator.js gestartet");
+
     const { TOTAL_PARAMS, ACTIVE_PARAMS_BILLIONS } = GPT5_PARAMS;
 
     // Schritt 1: Energie pro Token (pro GPU) in Wh
@@ -94,6 +96,8 @@ export function calculateEnergy(outputTokens) {
     const minEnergyWh = 0.01;
     const normalizedEnergyWh = Math.max(totalEnergyWh, minEnergyWh);
 
+    console.log(`CheckGPT: Energieverbrauch der letzen promt berechnet. errechneter wert ${normalizedEnergyWh.toFixed(4)} wh`);
+
     // Rückgabe in kWh
     return normalizedEnergyWh / 1000;
 }
@@ -106,7 +110,9 @@ export function calculateEnergy(outputTokens) {
 export function calculateCO2(energyKWh) {
     // GERMAN_EMISSION_FACTOR ist kg/kWh
     // Ergebnis kg -> * 1000 -> Gramm
-    return energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
+    const co2 = energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
+    console.log(`CheckGPT: co2 wert berechnet: ${co2.toFixed(4)}`);
+    return co2;
 }
 
 /**
