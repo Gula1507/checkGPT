@@ -1,6 +1,8 @@
 const ID = "checkgpt-co2-indicator";
 const WRAPPER_ID = "checkgpt-wrapper";
 let calculator = null;
+let lastCalculatedTokenCount = -1;
+let cachedCo2Value = 0;
 
 (async () => {
     try {
@@ -80,8 +82,12 @@ function updateIndicator() {
     // Calculate CO2
     let currentCo2 = 0;
     if (calculator) {
-        const kwh = calculator.calculateEnergy(lastTokenCount);
-        currentCo2 = calculator.calculateCO2(kwh);
+        if (lastTokenCount !== lastCalculatedTokenCount) {
+            const kwh = calculator.calculateEnergy(lastTokenCount);
+            cachedCo2Value = calculator.calculateCO2(kwh);
+            lastCalculatedTokenCount = lastTokenCount;
+        }
+        currentCo2 = cachedCo2Value;
     }
 
     // Wir nutzen dataset, um den aktuellen Stand zu speichern
