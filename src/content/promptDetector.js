@@ -1,77 +1,82 @@
-let observer;
+(() => {
+    if (window.checkGPTPromptDetectorActive) return;
+    window.checkGPTPromptDetectorActive = true;
 
-let lastAssistantText = "";
-let lastChangeTime = 0;
-let generationRunning = false;
+    let observer;
 
-const INACTIVE_TIMEOUT = 800;
+    let lastAssistantText = "";
+    let lastChangeTime = 0;
+    let generationRunning = false;
 
-/**
- * Prüft, ob die Antwort abgeschlossen ist
- */
-function checkIdle() {
-    if (!generationRunning) return;
+    const INACTIVE_TIMEOUT = 800;
 
-    if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
-        generationRunning = false;
-        console.log("✅ Prompt wurde ausgelöst (Antwort abgeschlossen)");
-        handlePromptDetected();
-    }
-}
+    /**
+     * Prüft, ob die Antwort abgeschlossen ist
+     */
+    function checkIdle() {
+        if (!generationRunning) return;
 
-/**
- * MutationObserver Callback
- */
-function onMutation() {
-    const messages = document.querySelectorAll(
-        '[data-message-author-role="assistant"]'
-    );
-    if (!messages.length) return;
-
-    const lastMessage = messages[messages.length - 1];
-    const text = lastMessage.innerText.trim();
-
-    if (text && text !== lastAssistantText) {
-        lastAssistantText = text;
-        lastChangeTime = Date.now();
-
-        if (!generationRunning) {
-            generationRunning = true;
-            console.log("✍️ Antwortgenerierung gestartet");
+        if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
+            generationRunning = false;
+            console.log("✅ Prompt wurde ausgelöst (Antwort abgeschlossen)");
+            handlePromptDetected();
         }
     }
-}
 
-/**
- * Wird aufgerufen, wenn Antwort von ChatGPT fertig ist
- */
-function handlePromptDetected() {
-    console.log("📄 Antworttext:", lastAssistantText);
-    // Dispatch event for other scripts (like tokens.js)
-    window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {
-        detail: { text: lastAssistantText }
-    }));
-}
+    /**
+     * MutationObserver Callback
+     */
+    function onMutation() {
+        const messages = document.querySelectorAll(
+            '[data-message-author-role="assistant"]'
+        );
+        if (!messages.length) return;
 
-/**
- * Wird beim Initialisierung ausgeführt, bevor der Prompt verschickt wurde
- */
-function initObserver() {
-    observer = new MutationObserver(onMutation);
+        const lastMessage = messages[messages.length - 1];
+        const text = lastMessage.innerText.trim();
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
+        if (text && text !== lastAssistantText) {
+            lastAssistantText = text;
+            lastChangeTime = Date.now();
 
-    setInterval(checkIdle, 300);
+            if (!generationRunning) {
+                generationRunning = true;
+                console.log("✍️ Antwortgenerierung gestartet");
+            }
+        }
+    }
 
-    console.log("ChatGPT Prompt Detector aktiv");
-}
+    /**
+     * Wird aufgerufen, wenn Antwort von ChatGPT fertig ist
+     */
+    function handlePromptDetected() {
+        console.log("📄 Antworttext:", lastAssistantText);
+        // Dispatch event for other scripts (like tokens.js)
+        window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {
+            detail: { text: lastAssistantText }
+        }));
+    }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initObserver);
-} else {
-    initObserver();
-}
+    /**
+     * Wird beim Initialisierung ausgeführt, bevor der Prompt verschickt wurde
+     */
+    function initObserver() {
+        observer = new MutationObserver(onMutation);
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        setInterval(checkIdle, 300);
+
+        console.log("ChatGPT Prompt Detector aktiv");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initObserver);
+    } else {
+        initObserver();
+    }
+})();
