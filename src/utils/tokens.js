@@ -85,10 +85,6 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       textTokens = Math.ceil(cleanText.length / 4);
     }
 
-    // Calculate Image Tokens (DEPRECATED: We now just pass imageCount)
-    // Legacy support or just keeping the logic simple:
-    // We only explicitly count text tokens here.
-
     // Total is primarily text tokens for the history, separate imageCount is stored too.
     tokenCount = textTokens;
 
