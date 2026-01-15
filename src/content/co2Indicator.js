@@ -73,7 +73,14 @@ function updateIndicator() {
     try {
         const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
         if (Array.isArray(history) && history.length > 0) {
-            lastTokenCount = history[history.length - 1] || 0;
+            const lastEntry = history[history.length - 1];
+            
+            // HIER PRÜFEN WIR: Objekt oder Zahl?
+            if (typeof lastEntry === 'object' && lastEntry !== null) {
+                lastTokenCount = lastEntry.tokens || 0;
+            } else {
+                lastTokenCount = lastEntry; // Fallback für alte Daten
+            }
         }
     } catch (e) {
         console.error("CheckGPT: Error reading token history", e);

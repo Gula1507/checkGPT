@@ -74,8 +74,9 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     // Calculate Text Tokens
 
     if (cleanText.length > 0) {
-      if (cleanText === lastProcessedText && imageCount === 0) {
-        console.log("CheckGPT: Text identical to last processed and no images. Skipping.");
+      // Duplicate Check: Prevent counting the same message twice
+      if (cleanText === lastProcessedText) {
+        console.log("CheckGPT: Text identical to last processed. Skipping.");
         return;
       }
       lastProcessedText = cleanText;
