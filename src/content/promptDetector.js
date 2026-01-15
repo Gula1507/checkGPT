@@ -9,7 +9,7 @@
     let generationRunning = false;
 
     // Wartezeit, bis wir annehmen, dass der Output fertig ist
-    const INACTIVE_TIMEOUT = 1500;
+    const INACTIVE_TIMEOUT = 4000;
 
     /**
      * Sammelt alle relevanten Nachrichten-Elemente (Text & Tools/Bilder)
@@ -62,7 +62,7 @@
 
         if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
             generationRunning = false;
-            console.log("CheckGPT: Prompt detection finished (Idle).");
+            console.log("CheckGPT: Response detection finished (Idle).");
             handlePromptDetected();
         }
     }
@@ -76,7 +76,22 @@
 
         const lastMessage = messages[messages.length - 1];
 
-        const text = lastMessage.innerText.trim();
+        // Clone Node to clean UI elements (Buttons, Icons, etc.)
+        const clonedNode = lastMessage.cloneNode(true);
+        const uiSelectors = ['button', '.icon', '[aria-label]', '.text-xs'];
+        uiSelectors.forEach(selector => {
+            clonedNode.querySelectorAll(selector).forEach(el => el.remove());
+        });
+
+        // Specific filter for "Upgrade to create faster" banner
+        const allElements = clonedNode.querySelectorAll('*');
+        allElements.forEach(el => {
+            if (el.innerText && el.innerText.includes("Upgrade to create faster")) {
+                el.remove();
+            }
+        });
+
+        const text = (clonedNode.innerText || "").trim();
         const imageCount = countImages(lastMessage);
 
         // Hash erstellen, um Änderungen zu erkennen (Textlänge + Bildanzahl)
@@ -103,10 +118,25 @@
         if (!lastMessage) return;
 
         const imageCount = countImages(lastMessage);
-        const text = lastMessage.innerText.trim();
+        // Clone Node to clean UI elements
+        const clonedNode = lastMessage.cloneNode(true);
+        const uiSelectors = ['button', '.icon', '[aria-label]', '.text-xs'];
+        uiSelectors.forEach(selector => {
+            clonedNode.querySelectorAll(selector).forEach(el => el.remove());
+        });
+
+        // Specific filter for "Upgrade to create faster" banner
+        const allElements = clonedNode.querySelectorAll('*');
+        allElements.forEach(el => {
+            if (el.innerText && el.innerText.includes("Upgrade to create faster")) {
+                el.remove();
+            }
+        });
+
+        const text = (clonedNode.innerText || "").trim();
         const type = imageCount > 0 ? "IMAGE" : "TEXT";
 
-        console.log(`CheckGPT Report: Type=${type}, Images=${imageCount}, TextLength=${text.length}`);
+        console.log(`CheckGPT Report: Type=${type}, Images=${imageCount}, TextLength=${text.length}, TextContent="${text.substring(0, 50)}"`);
 
         // Event an tokens.js senden
         window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {

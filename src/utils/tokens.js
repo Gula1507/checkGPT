@@ -10,6 +10,7 @@
  */
 
 let lastProcessedText = "";
+let lastProcessedImageCount = -1;
 
 /**
  * Handles the complete lifecycle of a detected prompt response.
@@ -27,7 +28,7 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     // ---------------------------------------------------------
     // 1. Text Extraction & Cleaning
     // ---------------------------------------------------------
-    if (providedText) {
+    if (providedText !== null) {
       cleanText = providedText.trim();
     } else {
       // Fallback: Scrape from DOM if no text provided.
@@ -75,13 +76,16 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
 
     // Calculate Text Tokens
 
+    // Duplicate Check: Prevent counting the same message twice (Text + Image check)
+    if (cleanText === lastProcessedText && imageCount === lastProcessedImageCount) {
+      console.log("CheckGPT: Content identical to last processed (Text & Image). Skipping.");
+      return;
+    }
+
+    lastProcessedText = cleanText;
+    lastProcessedImageCount = imageCount;
+
     if (cleanText.length > 0) {
-      // Duplicate Check: Prevent counting the same message twice
-      if (cleanText === lastProcessedText) {
-        console.log("CheckGPT: Text identical to last processed. Skipping.");
-        return;
-      }
-      lastProcessedText = cleanText;
       textTokens = Math.ceil(cleanText.length / 4);
     }
 

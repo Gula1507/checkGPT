@@ -3,6 +3,7 @@ const WRAPPER_ID = "checkgpt-wrapper";
 let calculator = null;
 let lastCalculatedTokenCount = -1;
 let lastCalculatedImageCount = -1;
+let lastCalculatedTimestamp = -1;
 let cachedCo2Value = 0;
 
 (async () => {
@@ -72,6 +73,7 @@ function updateIndicator() {
     // -----------------------
     let lastTokenCount = 0;
     let lastImageCount = 0;
+    let lastTimestamp = 0;
     try {
         const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
         if (Array.isArray(history) && history.length > 0) {
@@ -81,6 +83,7 @@ function updateIndicator() {
             if (typeof lastEntry === 'object' && lastEntry !== null) {
                 lastTokenCount = lastEntry.tokens || 0;
                 lastImageCount = lastEntry.imageCount || 0;
+                lastTimestamp = lastEntry.timestamp || 0;
             } else {
                 lastTokenCount = lastEntry; // Fallback für alte Daten
             }
@@ -92,13 +95,17 @@ function updateIndicator() {
     // Calculate CO2
     let currentCo2 = 0;
     if (calculator) {
-        // Recalculate if either tokens or image count changed
-        if (lastTokenCount !== lastCalculatedTokenCount || lastImageCount !== lastCalculatedImageCount) {
+        // Recalculate if tokens, image count OR timestamp changed (new generation)
+        if (lastTokenCount !== lastCalculatedTokenCount ||
+            lastImageCount !== lastCalculatedImageCount ||
+            lastTimestamp !== lastCalculatedTimestamp) {
+
             const kwh = calculator.calculateEnergy(lastTokenCount, lastImageCount);
             cachedCo2Value = calculator.calculateCO2(kwh);
 
             lastCalculatedTokenCount = lastTokenCount;
             lastCalculatedImageCount = lastImageCount;
+            lastCalculatedTimestamp = lastTimestamp;
         }
         currentCo2 = cachedCo2Value;
     }
