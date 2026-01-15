@@ -65,7 +65,18 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     // Text: 1 token ~= 4 chars
     // Images: Fixed amount per image
 
-    const TOKENS_PER_IMAGE = 1000; // Estimated cost/weight for an image generation
+    let energyPerToken = 0.0001028; // Fallback
+    try {
+      const src = chrome.runtime.getURL("src/utils/calculator.js");
+      const calculator = await import(src);
+      energyPerToken = calculator.factors.energyPerToken;
+    } catch (e) {
+      console.warn("CheckGPT: Could not load calculator factors, using default.", e);
+    }
+
+    const WH_PER_IMAGE = 10; // Annahme: 10 Wh pro Bild
+    const TOKENS_PER_IMAGE = Math.ceil(WH_PER_IMAGE / energyPerToken);
+
     const FALLBACK_VALUE = 20;
 
     let textTokens = 0;
@@ -129,6 +140,8 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       // - timestamp: Used for "Today" vs "Always" filtering
       const newEntry = {
         tokens: tokenCount,
+        imageCount: imageCount,
+        type: type,
         timestamp: Date.now()
       };
 
