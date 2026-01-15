@@ -10,7 +10,7 @@
  */
 export const factors = {
     energyPerToken: 0.00173,
-    emissionFactor_us: 0.370, // US-Emissionsfaktor (kgCO2eq/kWh)
+    emissionFactor_us: 0.370, // US-Emissionsfaktor (gCO2eq/kWh)
     pue: 1.2 // Power Usage Effectiveness
 };
 
@@ -45,12 +45,13 @@ export function calculateEnergy(outputTokens, imageCount = 0) {
  * @returns {number} Gramm CO2
  */
 export function calculateCO2(energyKWh) {
-    // emissionFactor_us ist g/kWh
-    const co2 = energyKWh * factors.emissionFactor_us * factors.pue;
+    // emissionFactor_us ist kg/kWh, daher * 1000 für Gramm
+    const co2Kg = energyKWh * factors.emissionFactor_us * factors.pue;
+    const co2Grams = co2Kg * 1000;
 
-    console.log(`CheckGPT: CO2 emission calculated: ${co2.toFixed(4)} g`);
+    console.log(`CheckGPT: CO2 emission calculated: ${co2Grams.toFixed(4)} g`);
 
-    return co2;
+    return co2Grams;
 }
 
 // auskommentiert, da noch nicht benötigt

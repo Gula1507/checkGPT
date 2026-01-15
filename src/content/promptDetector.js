@@ -133,7 +133,7 @@
 
         setInterval(checkIdle, 500); // Check alle 500ms
 
-        console.log("ChatGPT: Prompt Detector (Text & Image) active");
+        console.log("CheckGPT: Prompt Detector (Text & Image) active");
     }
 
     if (document.readyState === "loading") {
