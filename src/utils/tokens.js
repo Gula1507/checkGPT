@@ -1,64 +1,56 @@
 /**
  * CheckGPT - Token Extraction Module
  * ===================================
- * This script is responsible for estimating the token usage of ChatGPT's responses.
- * 
- * CORE LOGIC:
- * 1. Listen for 'gpt-prompt-complete' event from promptDetector.js
- * 2. Extract the text from the *last* assistant message.
- * 3. Clean the text (remove buttons, icons, noise).
- * 4. Estimate tokens (approx 1 token = 4 characters).
- * source: https://platform.openai.com/tokenizer
- * 5. Store the result in LocalStorage for later use.
- * 
- * DATA CONSUMPTION:
- * The estimated token count is saved to the browser's LocalStorage under the key 'tokenUsageHistory'.
- * Other scripts (like popups or indicators) can read this data:
- * 
- *    const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
- *    const lastCount = history[history.length - 1]; 
+ * This script estimates the token usage of ChatGPT's responses.
+ * * Workflow:
+ * 1. Listen for prompt completion.
+ * 2. Extract and clean the text from the DOM.
+ * 3. Calculate tokens (heuristic).
+ * 4. Save data with timestamps for history tracking.
  */
 
-/**
- * Main logic to extract the AI's response text, clean it, estimate token count,
- * and save the result. This function is ONLY called once per AI response.
- */
 let lastProcessedText = "";
 
 /**
- * Main logic to extract the AI's response text, clean it, estimate token count,
- * and save the result. This function is ONLY called once per AI response.
+ * Handles the complete lifecycle of a detected prompt response.
+ * * Steps performed:
+ * - Text Cleaning: Removes UI noise (buttons, icons).
+ * - Estimation: Calculates tokens based on character count.
+ * - Persistence: Saves result to LocalStorage and Chrome Storage.
+ * * @param {string|null} providedText - Optional text override.
  */
 async function handleGenerationComplete(providedText = null, type = "TEXT", imageCount = 0) {
   try {
     let cleanText = "";
+    let tokenCount = 0;
 
+    // ---------------------------------------------------------
+    // 1. Text Extraction & Cleaning
+    // ---------------------------------------------------------
     if (providedText) {
       cleanText = providedText.trim();
     } else {
-      // Fallback: SELECT LAST ASSISTANT MESSAGE
-      // We isolate the most recent message to ensure we only count the new content.
+      // Fallback: Scrape from DOM if no text provided.
+      // - Step A: Find all assistant messages.
+      // - Step B: Select the last one (most recent).
       const assistantMessages = [...document.querySelectorAll('[data-message-author-role="assistant"]')];
 
       if (assistantMessages.length === 0) {
-        console.warn("No assistant messages found. This may happen if the page was cleared or an error occurred.");
+        console.warn("CheckGPT: No assistant messages found.");
         return;
       }
 
       const lastMessageNode = assistantMessages[assistantMessages.length - 1];
 
-      // 2. CLEAN TEXT (CLONING STRATEGY)
-      // We clone the node (deep copy) so we can modify it without altering 
-      // the user's visible DOM. We then strip out UI artifacts (buttons, icons, disclaimers)
-      // to ensure we are only counting the actual tokens used by the AI's text.
+      // - Step C: Deep Clone & Sanitize
+      //   We clone the node to modify it without affecting the visible page.
+      //   We remove:
+      //   * Buttons (Copy, Regenerate)
+      //   * Icons (SVGs)
+      //   * Hidden accessibility text (aria-labels)
+      //   * Footer disclaimers (.text-xs)
       const clonedNode = lastMessageNode.cloneNode(true);
-
-      const uiSelectors = [
-        'button',         // "Copy code", "Regenerate" buttons
-        '.icon',          // SVG icons
-        '[aria-label]',   // Accessibility labels that add hidden text
-        '.text-xs'        // Footer disclaimers
-      ];
+      const uiSelectors = ['button', '.icon', '[aria-label]', '.text-xs'];
 
       uiSelectors.forEach(selector => {
         const elements = clonedNode.querySelectorAll(selector);
@@ -80,6 +72,7 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     let imageTokens = 0;
 
     // Calculate Text Tokens
+
     if (cleanText.length > 0) {
       if (cleanText === lastProcessedText && imageCount === 0) {
         console.log("CheckGPT: Text identical to last processed and no images. Skipping.");
@@ -102,47 +95,74 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       tokenCount = FALLBACK_VALUE;
     }
 
-    // 4. Output to console
-    console.log(`Last response tokens: ${tokenCount} (Type: ${type}, Images: ${imageCount})`);
+    console.log(`CheckGPT: Last response estimated tokens: ${tokenCount} (Type: ${type}, Images: ${imageCount})`);
 
-    // 5. Save to LocalStorage
+    // ---------------------------------------------------------
+    // 3. Persistence Logic (Storage & Sync)
+    // ---------------------------------------------------------
     try {
-      // Get existing history
       let history = [];
       const storedHistory = localStorage.getItem('tokenUsageHistory');
 
+      // Load and Validate existing history
       if (storedHistory) {
-        history = JSON.parse(storedHistory);
+        try {
+          const parsed = JSON.parse(storedHistory);
+          // Safety Check:
+          // - Must be an Array
+          // - If corrupt, reset to empty array
+          if (Array.isArray(parsed)) {
+            history = parsed;
+          } else {
+            console.warn("CheckGPT: Storage was not an array. Resetting history.");
+            history = [];
+          }
+        } catch (e) {
+          console.warn("CheckGPT: Error parsing history. Resetting.", e);
+          history = [];
+        }
       }
 
-      history.push(tokenCount);
+      // Create new entry
+      // - tokens: The calculated count
+      // - timestamp: Used for "Today" vs "Always" filtering
+      const newEntry = {
+        tokens: tokenCount,
+        timestamp: Date.now()
+      };
+
+      history.push(newEntry);
+
+      // Save to Browser LocalStorage (Persistence)
       localStorage.setItem('tokenUsageHistory', JSON.stringify(history));
-      // Sync to chrome.storage.local for popup access
+
+      // Sync to Chrome Storage (Accessibility for Popup)
       if (chrome && chrome.storage && chrome.storage.local) {
         chrome.storage.local.set({ tokenUsageHistory: history });
-      } else {
-        console.warn("[CheckGPT] chrome.storage.local not available. Is the 'storage' permission in manifest?");
       }
 
       console.log(`[CheckGPT] Saved response: ${tokenCount} tokens.`);
 
-      // mit diesem event lassen wir andere scripts wissen, dass die tokenanzahl geändert wurde
+      // Notify UI Components
+      // - Triggers update in co2Indicator.js
       window.dispatchEvent(new CustomEvent("checkgpt-tokens-updated", {
         detail: { tokenCount }
       }));
 
     } catch (storageError) {
-      console.error("Failed to save to localStorage:", storageError);
+      console.error("CheckGPT: Failed to save to localStorage:", storageError);
     }
 
   } catch (error) {
-    console.error("Critical error in token extraction:", error);
+    console.error("CheckGPT: Critical error in token extraction:", error);
   }
 }
 
 /**
- * INITIALIZATION
- * Connect to the central prompt detector.
+ * Initialization
+ * ===================================
+ * - Sets up event listener for 'gpt-prompt-complete'.
+ * - Connects this module to the promptDetector.
  */
 function initialize() {
   window.addEventListener("gpt-prompt-complete", (event) => {
@@ -153,5 +173,5 @@ function initialize() {
   console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }
 
-// Start
+// Start the module
 initialize();
