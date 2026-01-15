@@ -9,7 +9,7 @@
  * Konstanten
  */
 export const factors = {
-    energyPerToken: 0.0001028,
+    energyPerToken: 0.00173,
     emissionFactor_us: 0.370, // US-Emissionsfaktor (kgCO2eq/kWh)
     pue: 1.2 // Power Usage Effectiveness
 };
@@ -25,7 +25,6 @@ export const CO2_GRAMS_PER_METER_DRIVEN = 0.12;
 export function calculateEnergy(outputTokens, imageCount = 0) {
     const WH_PER_IMAGE = 10; // 10 Wh per image
 
-    // 0.0001028 Wh pro Token
     const tokenEnergyWh = outputTokens * factors.energyPerToken;
     const imageEnergyWh = imageCount * WH_PER_IMAGE;
 

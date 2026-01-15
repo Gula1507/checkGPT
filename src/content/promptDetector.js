@@ -62,7 +62,7 @@
 
         if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
             generationRunning = false;
-            console.log("✅ CheckGPT: Prompt detection finished (Idle).");
+            console.log("CheckGPT: Prompt detection finished (Idle).");
             handlePromptDetected();
         }
     }
@@ -88,7 +88,7 @@
 
             if (!generationRunning) {
                 generationRunning = true;
-                console.log("✍️ CheckGPT: Activity detected...");
+                console.log("CheckGPT: Activity detected...");
             }
         }
     }
@@ -133,7 +133,7 @@
 
         setInterval(checkIdle, 500); // Check alle 500ms
 
-        console.log("ChatGPT Prompt Detector v2 (Text & Image) active");
+        console.log("ChatGPT: Prompt Detector (Text & Image) active");
     }
 
     if (document.readyState === "loading") {

@@ -145,7 +145,7 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
         chrome.storage.local.set({ tokenUsageHistory: history });
       }
 
-      console.log(`[CheckGPT] Saved response: ${tokenCount} tokens.`);
+      console.log(`CheckGPT: Saved response: ${tokenCount} tokens.`);
 
       // Notify UI Components
       // - Triggers update in co2Indicator.js
