@@ -58,52 +58,72 @@
      * Prüft, ob die Generierung abgeschlossen ist (Idle Check)
      */
     function checkIdle() {
-        if (!generationRunning) return;
+        // Legacy idle check disabled in favor of Stop Button detection.
+    }
 
-        if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
-            generationRunning = false;
-            console.log("CheckGPT: Response detection finished (Idle).");
-            handlePromptDetected();
+    /**
+     * MutationObserver Callback
+     */
+    /**
+     * Finds the Stop Generating button
+     * Supports English, German, and robust data-testid
+     */
+    function getStopButton() {
+        const selectors = [
+            '[aria-label="Stop generating"]',
+            '[aria-label="Generierung stoppen"]',
+            '[data-testid="stop-button"]',
+            'button[aria-label="Stop"]' // Simple fallback
+        ];
+
+        for (const selector of selectors) {
+            const btn = document.querySelector(selector);
+            if (btn) return btn;
         }
+
+        // SVG Sprite Fallback (based on user provided hash)
+        // Checks if any button contains the specific SVG use ref
+        // Note: This is brittle if hash changes, but useful for now.
+        const useElements = document.querySelectorAll('use');
+        for (const use of useElements) {
+            if (use.getAttribute('href')?.includes('#bbf3a9')) {
+                return use.closest('button');
+            }
+        }
+
+        return null;
     }
 
     /**
      * MutationObserver Callback
      */
     function onMutation() {
-        const messages = getMessages();
-        if (!messages.length) return;
+        const stopButton = getStopButton();
 
-        const lastMessage = messages[messages.length - 1];
-
-        // Clone Node to clean UI elements (Buttons, Icons, etc.)
-        const clonedNode = lastMessage.cloneNode(true);
-        const uiSelectors = ['button', '.icon', '[aria-label]', '.text-xs'];
-        uiSelectors.forEach(selector => {
-            clonedNode.querySelectorAll(selector).forEach(el => el.remove());
-        });
-
-        // Specific filter for "Upgrade to create faster" banner
-        const allElements = clonedNode.querySelectorAll('*');
-        allElements.forEach(el => {
-            if (el.innerText && el.innerText.includes("Upgrade to create faster")) {
-                el.remove();
-            }
-        });
-
-        const text = (clonedNode.innerText || "").trim();
-        const imageCount = countImages(lastMessage);
-
-        // Hash erstellen, um Änderungen zu erkennen (Textlänge + Bildanzahl)
-        const currentContentHash = `${text.length}-${imageCount}`;
-
-        if (currentContentHash !== lastContentHash) {
-            lastContentHash = currentContentHash;
-            lastChangeTime = Date.now();
-
+        if (stopButton) {
+            // Case A: Generation is active (Stop button visible)
             if (!generationRunning) {
                 generationRunning = true;
-                console.log("CheckGPT: Activity detected...");
+                console.log("CheckGPT: Stop button appeared. Generation started.");
+            }
+            // Update timestamp to keep "alive" if we still wanted timeouts (optional now)
+            lastChangeTime = Date.now();
+
+        } else {
+            // Case B: Generation might have finished (Stop button NOT visible)
+            if (generationRunning) {
+                // Determine if it really finished or just flickered.
+                // We use a small buffer or just assume finished.
+                // The previous logic used a timeout, but for "Stop Button" logic, 
+                // disappearance usually means DONE.
+
+                generationRunning = false;
+                console.log("CheckGPT: Stop button disappeared. Generation finished.");
+
+                // Give the DOM a moment to settle (final text render) before scraping
+                setTimeout(() => {
+                    handlePromptDetected();
+                }, 500);
             }
         }
     }
