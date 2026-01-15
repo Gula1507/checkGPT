@@ -1,73 +1,144 @@
-let observer;
+(() => {
+    // Verhindert doppeltes Laden
+    if (window.checkGPTPromptDetectorActive) return;
+    window.checkGPTPromptDetectorActive = true;
 
-let lastAssistantText = "";
-let lastChangeTime = 0;
-let generationRunning = false;
+    let observer;
+    let lastContentHash = "";
+    let lastChangeTime = 0;
+    let generationRunning = false;
+    
+    // Wartezeit, bis wir annehmen, dass der Output fertig ist
+    const INACTIVE_TIMEOUT = 1500; 
 
-const INACTIVE_TIMEOUT = 800;
-
-/**
- * Prüft, ob die Antwort abgeschlossen ist
- */
-function checkIdle() {
-    if (!generationRunning) return;
-
-    if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
-        generationRunning = false;
-        console.log("✅ Prompt wurde ausgelöst (Antwort abgeschlossen)");
-        handlePromptDetected();
+    /**
+     * Sammelt alle relevanten Nachrichten-Elemente (Text & Tools/Bilder)
+     */
+    function getMessages() {
+        return document.querySelectorAll(
+            '[data-message-author-role="assistant"], [data-message-author-role="tool"], .group\\/imagegen-image'
+        );
     }
-}
 
-/**
- * MutationObserver Callback
- */
-function onMutation() {
-    const messages = document.querySelectorAll(
-        '[data-message-author-role="assistant"]'
-    );
-    if (!messages.length) return;
+    /**
+     * Zählt Bilder im Element (Deine Logik + Fallbacks)
+     */
+    function countImages(element) {
+        if (!element) return 0;
 
-    const lastMessage = messages[messages.length - 1];
-    const text = lastMessage.innerText.trim();
+        // 1. Suche nach dem spezifischen Container (DALL-E Container)
+        const specificImageContainer = element.classList.contains('group/imagegen-image') 
+            ? [element] 
+            : element.querySelectorAll('.group\\/imagegen-image');
+        
+        if (specificImageContainer.length > 0) {
+            return specificImageContainer.length;
+        }
 
-    if (text && text !== lastAssistantText) {
-        lastAssistantText = text;
-        lastChangeTime = Date.now();
+        // 2. Suche nach IMG-Tags mit typischem Alt-Text
+        const generatedImages = element.querySelectorAll('img[alt="Generated image"]');
+        if (generatedImages.length > 0) {
+            return generatedImages.length;
+        }
 
-        if (!generationRunning) {
-            generationRunning = true;
-            console.log("✍️ Antwortgenerierung gestartet");
+        // 3. Fallback: Große Bilder oder Blob-URLs
+        const otherImages = Array.from(element.querySelectorAll('img'));
+        let count = 0;
+        otherImages.forEach(img => {
+            // Filtert kleine Icons oder Profilbilder raus
+            if (img.width > 200 || img.src.startsWith("blob:") || img.src.includes("files.oaiusercontent.com")) {
+                count++;
+            }
+        });
+
+        return count;
+    }
+
+    /**
+     * Prüft, ob die Generierung abgeschlossen ist (Idle Check)
+     */
+    function checkIdle() {
+        if (!generationRunning) return;
+
+        if (Date.now() - lastChangeTime > INACTIVE_TIMEOUT) {
+            generationRunning = false;
+            console.log("✅ CheckGPT: Prompt detection finished (Idle).");
+            handlePromptDetected();
         }
     }
-}
 
-/**
- * Wird aufgerufen, wenn Antwort von ChatGPT fertig ist
- */
-function handlePromptDetected() {
-    console.log("📄 Antworttext:", lastAssistantText);
-}
+    /**
+     * MutationObserver Callback
+     */
+    function onMutation() {
+        const messages = getMessages();
+        if (!messages.length) return;
 
-/**
- * Wird beim Initialisierung ausgeführt, bevor der Prompt verschickt wurde
- */
-function initObserver() {
-    observer = new MutationObserver(onMutation);
+        const lastMessage = messages[messages.length - 1];
+        
+        const text = lastMessage.innerText.trim();
+        const imageCount = countImages(lastMessage);
 
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
+        // Hash erstellen, um Änderungen zu erkennen (Textlänge + Bildanzahl)
+        const currentContentHash = `${text.length}-${imageCount}`;
 
-    setInterval(checkIdle, 300);
+        if (currentContentHash !== lastContentHash) {
+            lastContentHash = currentContentHash;
+            lastChangeTime = Date.now();
 
-    console.log("ChatGPT Prompt Detector aktiv");
-}
+            if (!generationRunning) {
+                generationRunning = true;
+                console.log("✍️ CheckGPT: Activity detected...");
+            }
+        }
+    }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initObserver);
-} else {
-    initObserver();
-}
+    /**
+     * Feuert das Event, wenn alles fertig ist
+     */
+    function handlePromptDetected() {
+        const messages = getMessages();
+        const lastMessage = messages[messages.length - 1];
+
+        if (!lastMessage) return;
+
+        const imageCount = countImages(lastMessage);
+        const text = lastMessage.innerText.trim();
+        const type = imageCount > 0 ? "IMAGE" : "TEXT";
+
+        console.log(`CheckGPT Report: Type=${type}, Images=${imageCount}, TextLength=${text.length}`);
+
+        // Event an tokens.js senden
+        window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {
+            detail: { 
+                text: text,
+                type: type,
+                imageCount: imageCount
+            }
+        }));
+    }
+
+    /**
+     * Initialisierung
+     */
+    function initObserver() {
+        observer = new MutationObserver(onMutation);
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+            attributes: true // Wichtig für Bild-Ladezustände
+        });
+
+        setInterval(checkIdle, 500); // Check alle 500ms
+
+        console.log("ChatGPT Prompt Detector v2 (Text & Image) active");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initObserver);
+    } else {
+        initObserver();
+    }
+})();
