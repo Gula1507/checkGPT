@@ -29,7 +29,7 @@ let lastProcessedText = "";
  * Main logic to extract the AI's response text, clean it, estimate token count,
  * and save the result. This function is ONLY called once per AI response.
  */
-async function handleGenerationComplete(providedText = null) {
+async function handleGenerationComplete(providedText = null, type = "TEXT", imageCount = 0) {
   try {
     let cleanText = "";
 
@@ -89,7 +89,7 @@ async function handleGenerationComplete(providedText = null) {
     }
 
     // 4. Output to console
-    console.log(`Last response tokens: ${tokenCount}`);
+    console.log(`Last response tokens: ${tokenCount} (Type: ${type}, Images: ${imageCount})`);
 
     // 5. Save to LocalStorage
     try {
@@ -133,8 +133,8 @@ async function handleGenerationComplete(providedText = null) {
 function initialize() {
   window.addEventListener("gpt-prompt-complete", (event) => {
     console.log("CheckGPT: Token computation triggered by prompt detector.");
-    const text = event.detail ? event.detail.text : null;
-    handleGenerationComplete(text);
+    const { text, type, imageCount } = event.detail || {};
+    handleGenerationComplete(text, type, imageCount);
   });
   console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }
