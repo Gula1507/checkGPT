@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CheckGPT ",
-  "version": "1.1",
+  "version": "1.11",
   "description": "Test-Addon zur Berechnung von Tokens je Prompt",
   "permissions": [
     "tabs"
@@ -16,6 +16,7 @@
       ],
       "js": [
         "src/content/co2Indicator.js",
+        "src/content/promptDetector.js",
         "src/tokens/tokens.js"
       ],
       "css": []
