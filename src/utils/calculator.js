@@ -2,15 +2,16 @@
  * Modul zur Energieberechnung
  * ====================================================
  *
- * Vereinfachte Berechnung: 0.0332 Wh pro Token.
+ * Vereinfachte Berechnung: X Wh pro Token (Wattstunden)
  */
 
 /**
  * Konstanten
  */
-export const ECOLOGITS_CONSTANTS = {
-    // Emissionen
-    GERMAN_EMISSION_FACTOR: 0.363 // Deutscher Emissionsfaktor lt. Ticket (kgCO2eq/kWh)
+export const factors = {
+    energyPerToken: 0.0001028,
+    emissionFactor_us: 0.370, // US-Emissionsfaktor (kgCO2eq/kWh)
+    pue: 1.2 // Power Usage Effectiveness
 };
 
 // Konstante für Auto-Emissionen (ca. 120g/km -> 0.12g/m)
@@ -23,8 +24,8 @@ export const CO2_GRAMS_PER_METER_DRIVEN = 0.12;
  */
 export function calculateEnergy(outputTokens) {
 
-    // 0,00174 Wh pro Token
-    const energyWh = outputTokens * 0.00174;
+    // 0.0001028 Wh pro Token
+    const energyWh = outputTokens * factors.energyPerToken;
 
     const minEnergyWh = 0.01;
     const normalizedEnergyWh = Math.max(energyWh, minEnergyWh);
@@ -42,21 +43,20 @@ export function calculateEnergy(outputTokens) {
  * @returns {number} Gramm CO2
  */
 export function calculateCO2(energyKWh) {
-    // GERMAN_EMISSION_FACTOR ist kg/kWh
-    // Ergebnis kg -> * 1000 -> Gramm
-    const co2 = energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
-    
-    // OPTIMIERT: Kurz und bündig
+    // emissionFactor_us ist g/kWh
+    const co2 = energyKWh * factors.emissionFactor_us * factors.pue;
+
     console.log(`CheckGPT: CO2 emission calculated: ${co2.toFixed(4)} g`);
-    
+
     return co2;
 }
 
+// auskommentiert, da noch nicht benötigt
 /**
  * Berechnet die äquivalente Autofahrt-Distanz in Metern
  * @param {number} co2Grams - CO2 in Gramm
  * @returns {number} Distanz in Metern
  */
-export function calculateCarDistance(co2Grams) {
-    return co2Grams / CO2_GRAMS_PER_METER_DRIVEN;
-}
+//export function calculateCarDistance(co2Grams) {
+//    return co2Grams / CO2_GRAMS_PER_METER_DRIVEN;
+//}
