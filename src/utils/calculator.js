@@ -29,7 +29,8 @@ export function calculateEnergy(outputTokens) {
     const minEnergyWh = 0.01;
     const normalizedEnergyWh = Math.max(energyWh, minEnergyWh);
 
-    console.log(`CheckGPT: Energieverbrauch der letzen promt berechnet. errechneter wert ${normalizedEnergyWh.toFixed(4)} wh`);
+    // OPTIMIERT: Englisch, korrekte Einheit (Wh), keine Tippfehler
+    console.log(`CheckGPT: Energy calculated: ${normalizedEnergyWh.toFixed(4)} Wh`);
 
     // Rückgabe in kWh
     return normalizedEnergyWh / 1000;
@@ -44,7 +45,10 @@ export function calculateCO2(energyKWh) {
     // GERMAN_EMISSION_FACTOR ist kg/kWh
     // Ergebnis kg -> * 1000 -> Gramm
     const co2 = energyKWh * ECOLOGITS_CONSTANTS.GERMAN_EMISSION_FACTOR * 1000;
-    console.log(`CheckGPT: co2 wert berechnet: ${co2.toFixed(4)}`);
+    
+    // OPTIMIERT: Kurz und bündig
+    console.log(`CheckGPT: CO2 emission calculated: ${co2.toFixed(4)} g`);
+    
     return co2;
 }
 
