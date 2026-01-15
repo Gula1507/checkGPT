@@ -65,22 +65,13 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     // Text: 1 token ~= 4 chars
     // Images: Fixed amount per image
 
-    let energyPerToken = 0.0001028; // Fallback
-    try {
-      const src = chrome.runtime.getURL("src/utils/calculator.js");
-      const calculator = await import(src);
-      energyPerToken = calculator.factors.energyPerToken;
-    } catch (e) {
-      console.warn("CheckGPT: Could not load calculator factors, using default.", e);
-    }
-
-    const WH_PER_IMAGE = 10; // Annahme: 10 Wh pro Bild
-    const TOKENS_PER_IMAGE = Math.ceil(WH_PER_IMAGE / energyPerToken);
+    // Text: 1 token ~= 4 chars
+    // Images: Just counted here, energy calculated in calculator.js
 
     const FALLBACK_VALUE = 20;
 
     let textTokens = 0;
-    let imageTokens = 0;
+    // let imageTokens = 0; // Removed, counted separately
 
     // Calculate Text Tokens
 
@@ -94,13 +85,12 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       textTokens = Math.ceil(cleanText.length / 4);
     }
 
-    // Calculate Image Tokens
-    if (imageCount > 0) {
-      imageTokens = imageCount * TOKENS_PER_IMAGE;
-    }
+    // Calculate Image Tokens (DEPRECATED: We now just pass imageCount)
+    // Legacy support or just keeping the logic simple:
+    // We only explicitly count text tokens here.
 
-    // Total
-    tokenCount = textTokens + imageTokens;
+    // Total is primarily text tokens for the history, separate imageCount is stored too.
+    tokenCount = textTokens;
 
     // Fallback if absolutely nothing (shouldn't happen if prompted)
     if (tokenCount === 0 && cleanText.length === 0 && imageCount === 0) {

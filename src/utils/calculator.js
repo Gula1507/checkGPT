@@ -22,16 +22,19 @@ export const CO2_GRAMS_PER_METER_DRIVEN = 0.12;
  * @param {number} outputTokens - Anzahl der Token
  * @returns {number} kWh
  */
-export function calculateEnergy(outputTokens) {
+export function calculateEnergy(outputTokens, imageCount = 0) {
+    const WH_PER_IMAGE = 10; // 10 Wh per image
 
     // 0.0001028 Wh pro Token
-    const energyWh = outputTokens * factors.energyPerToken;
+    const tokenEnergyWh = outputTokens * factors.energyPerToken;
+    const imageEnergyWh = imageCount * WH_PER_IMAGE;
+
+    const totalEnergyWh = tokenEnergyWh + imageEnergyWh;
 
     const minEnergyWh = 0.01;
-    const normalizedEnergyWh = Math.max(energyWh, minEnergyWh);
+    const normalizedEnergyWh = Math.max(totalEnergyWh, minEnergyWh);
 
-    // OPTIMIERT: Englisch, korrekte Einheit (Wh), keine Tippfehler
-    console.log(`CheckGPT: Energy calculated: ${normalizedEnergyWh.toFixed(4)} Wh`);
+    console.log(`CheckGPT: Energy calculated: ${normalizedEnergyWh.toFixed(4)} Wh (Tokens: ${outputTokens}, Images: ${imageCount})`);
 
     // Rückgabe in kWh
     return normalizedEnergyWh / 1000;
