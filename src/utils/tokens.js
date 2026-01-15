@@ -69,22 +69,36 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       cleanText = extractedText.trim();
     }
 
-    // 3. TOKEN ESTIMATION (HEURISTIC)
-    // We use a character-count heuristic (chars/4) instead of a full tokenizer library (tiktoken).
-    // REASON: A full tokenizer is too heavy for now.
-    // Source: https://platform.openai.com/tokenizer
+    // 3. TOKEN ESTIMATION
+    // Text: 1 token ~= 4 chars
+    // Images: Fixed amount per image
 
+    const TOKENS_PER_IMAGE = 1000; // Estimated cost/weight for an image generation
     const FALLBACK_VALUE = 20;
+
+    let textTokens = 0;
+    let imageTokens = 0;
+
+    // Calculate Text Tokens
     if (cleanText.length > 0) {
-      if (cleanText === lastProcessedText) {
-        console.log("CheckGPT: Text identical to last processed. Skipping token computation.");
+      if (cleanText === lastProcessedText && imageCount === 0) {
+        console.log("CheckGPT: Text identical to last processed and no images. Skipping.");
         return;
       }
       lastProcessedText = cleanText;
+      textTokens = Math.ceil(cleanText.length / 4);
+    }
 
-      // Math.ceil ensures we account for partial tokens conservatively.
-      tokenCount = Math.ceil(cleanText.length / 4);
-    } else {
+    // Calculate Image Tokens
+    if (imageCount > 0) {
+      imageTokens = imageCount * TOKENS_PER_IMAGE;
+    }
+
+    // Total
+    tokenCount = textTokens + imageTokens;
+
+    // Fallback if absolutely nothing (shouldn't happen if prompted)
+    if (tokenCount === 0 && cleanText.length === 0 && imageCount === 0) {
       tokenCount = FALLBACK_VALUE;
     }
 
