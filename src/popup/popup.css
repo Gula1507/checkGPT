@@ -125,9 +125,31 @@ input:checked+.slider::before {
     color: var(--text-muted);
     box-shadow: var(--shadow-sm);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+
+    /* Grid layout for Icon + Content */
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 16px;
+    align-items: center;
+}
+
+.chip::before {
+    grid-row: 1 / -1;
+    grid-column: 1;
+    font-size: 24px;
+    line-height: 1;
+}
+
+/* Specific Icons */
+/* First chip in the first group: Prompts */
+.chips:not(.center) .chip:nth-child(1)::before {
+    content: "💬";
+}
+
+/* Second chip in the first group: Energy */
+.chips:not(.center) .chip:nth-child(2)::before {
+    content: "⚡";
 }
 
 .chip:hover {
@@ -137,6 +159,8 @@ input:checked+.slider::before {
 }
 
 .chip strong {
+    grid-column: 2;
+    grid-row: 1;
     display: block;
     font-size: 24px;
     font-weight: 700;
@@ -181,6 +205,13 @@ input:checked+.slider::before {
     border-color: #bbf7d0;
     color: #166534;
     /* Green 800 */
+
+    /* Override grid alignment for the center chip if needed, but keeping left icon looks good */
+    text-align: left;
+}
+
+.chips.center .chip::before {
+    content: "🚗";
 }
 
 .chips.center .chip strong {
