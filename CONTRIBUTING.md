@@ -11,7 +11,7 @@
 - Prüfen, dass in keiner Weise personenbezogene Daten über den Code gespeichert oder offengelegt werden
 - Build ist erfolgreich durchgelaufen
 - QM-Prüfung (funktional und ggf. fachlich) ist abgeschlossen und dokumentiert
-- QM-Reviewer erzeugt eine neue Pull-Request für den Main-Branch, welches durch den ursprünglichen Entwickler approved wird
+- QM-Reviewer erzeugt eine neue Pull-Request aus Test-Branch für den Main-Branch, welches durch den ursprünglichen Entwickler approved wird
 - Relevante Dokumentation (README, Kommentare, Wiki) ist aktualisiert
 - Issue ist in GitHub korrekt abgeschlossen und dem Sprint als „Done“ zugeordnet
 
