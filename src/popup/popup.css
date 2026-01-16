@@ -39,7 +39,7 @@ h3 {
 }
 
 h3:first-of-type {
-    font-size: 20px;
+    font-size: 24px;
     margin-bottom: 24px;
     text-align: left;
     color: var(--primary-color);
@@ -192,36 +192,46 @@ input:checked+.slider::before {
 }
 
 /* Comparison */
-.chips.center {
-    flex-direction: row;
-    justify-content: center;
+/* Comparison Grid */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
     margin-bottom: 24px;
 }
 
-.chips.center .chip {
-    flex: 1;
-    text-align: center;
+.comparison-item {
     background-color: #f0fdf4;
     /* Green 50 */
     border-color: #bbf7d0;
     color: #166534;
     /* Green 800 */
-
-    /* Override grid alignment for the center chip if needed, but keeping left icon looks good */
-    text-align: left;
 }
 
-.chips.center .chip::before {
-    content: "🚗";
-}
-
-.chips.center .chip strong {
+.comparison-item strong {
     color: #15803d;
     /* Green 700 */
     font-size: 20px;
 }
 
-.chips.center .chip:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm);
+.comparison-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Grid Icons */
+.comparison-item.car::before {
+    content: "🚗";
+}
+
+.comparison-item.bulb::before {
+    content: "💡";
+}
+
+.comparison-item.smartphone::before {
+    content: "📱";
+}
+
+.comparison-item.tea::before {
+    content: "☕";
 }
