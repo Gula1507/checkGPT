@@ -4,12 +4,12 @@
     window.checkGPTPromptDetectorActive = true;
 
     let observer;
-    let lastContentHash = "";
-    let lastChangeTime = 0;
+
+    // let lastContentHash = ""; // Unused
+    let lastChangeTime = 0; // Used for potential debugging / future timeouts
     let generationRunning = false;
 
-    // Wartezeit, bis wir annehmen, dass der Output fertig ist
-    const INACTIVE_TIMEOUT = 4000;
+    // Legacy timeout removed. Stop-Button logic is now primary.
 
     /**
      * Sammelt alle relevanten Nachrichten-Elemente (Text & Tools/Bilder)
@@ -181,7 +181,7 @@
             attributes: true // Wichtig für Bild-Ladezustände
         });
 
-        setInterval(checkIdle, 500); // Check alle 500ms
+        // setInterval(checkIdle, 500); // Disabled: Stop Button detection is event-driven
 
         console.log("CheckGPT: Prompt Detector (Text & Image) active");
     }

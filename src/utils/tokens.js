@@ -76,11 +76,8 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
 
     // Calculate Text Tokens
 
-    // Duplicate Check: Prevent counting the same message twice (Text + Image check)
-    if (cleanText === lastProcessedText && imageCount === lastProcessedImageCount) {
-      console.log("CheckGPT: Content identical to last processed (Text & Image). Skipping.");
-      return;
-    }
+    // Duplicate Check removed: promptDetector.js (Stop Button) now handles unique events.
+    // We must process every event here to allow consecutive image generations (which look identical).
 
     lastProcessedText = cleanText;
     lastProcessedImageCount = imageCount;
