@@ -171,7 +171,7 @@ input:checked+.slider::before {
 /* Hint */
 .hint {
     margin-top: auto;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 500;
     color: var(--text-muted);
     text-align: center;
@@ -232,6 +232,27 @@ input:checked+.slider::before {
     content: "📱";
 }
 
+
 .comparison-item.tea::before {
     content: "☕";
+}
+
+/* Footer Link */
+.footer-link {
+    text-align: center;
+    margin-top: auto;
+    padding-top: 16px;
+    font-size: 13px;
+}
+
+.footer-link a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    text-decoration: underline;
+}
+
+.footer-link a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
