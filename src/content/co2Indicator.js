@@ -36,144 +36,119 @@ function animateValue(obj, start, end, duration) {
 }
 
 function updateIndicator() {
-    const input = document.querySelector("#prompt-textarea");
-    if (!input) return;
-
-    const form = input.closest("form");
-    if (!form) return;
-
-    // Wrapper für promt-input und indicator erstellen oder abrufen
-    let wrapper = document.getElementById(WRAPPER_ID);
-    if (!wrapper) {
-        wrapper = document.createElement("div");
-        wrapper.id = WRAPPER_ID;
-        wrapper.style.display = "flex";
-        wrapper.style.alignItems = "center";
-        wrapper.style.justifyContent = "center";
-        wrapper.style.width = "100%";
-        wrapper.style.gap = "15px";
-
-        if (form.parentNode) {
-            form.parentNode.insertBefore(wrapper, form);
-            wrapper.appendChild(form);
-        }
-    } else if (form.parentNode !== wrapper) {
-        // Falls das Formular durch Re-Renderings rausgeflogen ist, wieder einfangen
-        wrapper.appendChild(form);
-    }
-
-    // promt-input feld flexibel machen
-    form.style.flex = "1";
-    form.style.width = "auto";
-    form.style.maxWidth = "unset";
-    form.style.margin = "0";
-
-    // -----------------------
-    // Retrieve token count
-    // -----------------------
-    let lastTokenCount = 0;
-    let lastImageCount = 0;
-    let lastTimestamp = 0;
     try {
-        const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
-        if (Array.isArray(history) && history.length > 0) {
-            const lastEntry = history[history.length - 1];
+        const input = document.querySelector("#prompt-textarea");
+        if (!input) return;
 
-            // HIER PRÜFEN WIR: Objekt oder Zahl?
-            if (typeof lastEntry === 'object' && lastEntry !== null) {
-                lastTokenCount = lastEntry.tokens || 0;
-                lastImageCount = lastEntry.imageCount || 0;
-                lastTimestamp = lastEntry.timestamp || 0;
-            } else {
-                lastTokenCount = lastEntry; // Fallback für alte Daten
+        const form = input.closest("form");
+        if (!form) return;
+
+        // -----------------------
+        // Retrieve token count
+        // -----------------------
+        let lastTokenCount = 0;
+        let lastImageCount = 0;
+        let lastTimestamp = 0;
+        try {
+            const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
+            if (Array.isArray(history) && history.length > 0) {
+                const lastEntry = history[history.length - 1];
+
+                // HIER PRÜFEN WIR: Objekt oder Zahl?
+                if (typeof lastEntry === 'object' && lastEntry !== null) {
+                    lastTokenCount = lastEntry.tokens || 0;
+                    lastImageCount = lastEntry.imageCount || 0;
+                    lastTimestamp = lastEntry.timestamp || 0;
+                } else {
+                    lastTokenCount = lastEntry; // Fallback für alte Daten
+                }
             }
+        } catch (e) {
+            console.error("CheckGPT: Error reading token history", e);
         }
-    } catch (e) {
-        console.error("CheckGPT: Error reading token history", e);
-    }
 
-    // Calculate CO2
-    let currentCo2 = 0;
-    if (calculator) {
-        // Recalculate if tokens, image count OR timestamp changed (new generation)
-        if (lastTokenCount !== lastCalculatedTokenCount ||
-            lastImageCount !== lastCalculatedImageCount ||
-            lastTimestamp !== lastCalculatedTimestamp) {
+        // Calculate CO2
+        let currentCo2 = 0;
+        if (calculator) {
+            // Recalculate if tokens, image count OR timestamp changed (new generation)
+            if (lastTokenCount !== lastCalculatedTokenCount ||
+                lastImageCount !== lastCalculatedImageCount ||
+                lastTimestamp !== lastCalculatedTimestamp) {
 
-            const kwh = calculator.calculateEnergy(lastTokenCount, lastImageCount);
-            cachedCo2Value = calculator.calculateCO2(kwh);
+                const kwh = calculator.calculateEnergy(lastTokenCount, lastImageCount);
+                cachedCo2Value = calculator.calculateCO2(kwh);
 
-            lastCalculatedTokenCount = lastTokenCount;
-            lastCalculatedImageCount = lastImageCount;
-            lastCalculatedTimestamp = lastTimestamp;
-        }
-        currentCo2 = cachedCo2Value;
-    }
-
-    // Wir nutzen dataset, um den aktuellen Stand zu speichern
-    // und verhindern unnötiges Re-Rendern (z.B. beim Scrollen)
-
-    let indicator = document.getElementById(ID);
-
-    if (!indicator) {
-        indicator = document.createElement("div");
-        indicator.id = ID;
-        // Speichere den initialen Wert
-        indicator.dataset.currentValue = currentCo2;
-
-        indicator.style.whiteSpace = "pre-line";
-        indicator.style.textAlign = "center";
-        indicator.style.fontFamily = "inherit";
-        indicator.style.fontSize = "14px";
-        indicator.style.fontWeight = "500";
-        indicator.style.color = "#064E3B";
-        indicator.style.background = "#BBF7D0";
-        indicator.style.padding = "8px 14px";
-        indicator.style.borderRadius = "999px";
-        indicator.style.lineHeight = "1.2";
-        indicator.style.boxShadow = "0 1px 2px rgba(0,0,0,0.08)";
-        indicator.style.flexShrink = "0";
-
-        // Initial HTML structure
-        let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
-
-        indicator.innerHTML = textHTML;
-
-        wrapper.appendChild(indicator);
-    } else {
-        if (indicator.parentNode !== wrapper) {
-            wrapper.appendChild(indicator);
-        }
-        // styles zurücksetzen, falls das Element schon existierte
-        indicator.style.position = "static";
-        indicator.style.transform = "none";
-
-        // Animation Logic
-        const displayedValue = parseFloat(indicator.dataset.currentValue || "0");
-
-        if (Math.abs(displayedValue - currentCo2) > 0.001) {
-            // Wert hat sich geändert -> Animation triggern!
-            const countElement = indicator.querySelector("#checkgpt-count-anim");
-            if (countElement) {
-                animateValue(countElement, displayedValue, currentCo2, 1000); // 1s Animation
-            } else {
-                // Fallback
-                let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
-                indicator.innerHTML = textHTML;
+                lastCalculatedTokenCount = lastTokenCount;
+                lastCalculatedImageCount = lastImageCount;
+                lastCalculatedTimestamp = lastTimestamp;
             }
+            currentCo2 = cachedCo2Value;
+        }
 
-            // Update dataset
+        // UI Logic
+        let indicator = document.getElementById(ID);
+
+        if (!indicator) {
+            indicator = document.createElement("div");
+            indicator.id = ID;
+            // Speichere den initialen Wert
             indicator.dataset.currentValue = currentCo2;
+
+            indicator.style.whiteSpace = "pre-line";
+            indicator.style.textAlign = "center";
+            indicator.style.fontFamily = "inherit";
+            indicator.style.fontSize = "14px";
+            indicator.style.fontWeight = "500";
+            indicator.style.color = "#064E3B";
+            indicator.style.background = "#BBF7D0";
+            indicator.style.padding = "8px 14px";
+            indicator.style.borderRadius = "999px";
+            indicator.style.lineHeight = "1.2";
+            indicator.style.boxShadow = "0 1px 2px rgba(0,0,0,0.08)";
+            indicator.style.marginLeft = "12px";
+            indicator.style.flexShrink = "0";
+
+            // Initial HTML structure
+            let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
+            indicator.innerHTML = textHTML;
+
+            // ➜ NUR daneben einfügen, nie verschieben
+            form.after(indicator);
+
+        } else {
+            // styles zurücksetzen, falls das Element schon existierte
+            indicator.style.position = "static";
+            indicator.style.transform = "none";
+
+            // Animation Logic
+            const displayedValue = parseFloat(indicator.dataset.currentValue || "0");
+
+            if (Math.abs(displayedValue - currentCo2) > 0.001) {
+                // Wert hat sich geändert -> Animation triggern!
+                const countElement = indicator.querySelector("#checkgpt-count-anim");
+                if (countElement) {
+                    animateValue(countElement, displayedValue, currentCo2, 1000); // 1s Animation
+                } else {
+                    // Fallback if structure changed
+                    let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
+                    indicator.innerHTML = textHTML;
+                }
+
+                // Update dataset
+                indicator.dataset.currentValue = currentCo2;
+            }
         }
+
+        // promt-input feld flexibel machen
+        form.style.flex = "1";
+        form.style.width = "auto";
+        form.style.maxWidth = "unset";
+        form.style.margin = "0";
+
+    } catch (e) {
+        console.warn("CheckGPT: Error updating indicator", e);
     }
 }
-
-requestAnimationFrame(() => {
-    setTimeout(updateIndicator, 0);
-});
-
-window.addEventListener("scroll", updateIndicator);
-window.addEventListener("resize", updateIndicator);
 
 const observer = new MutationObserver((mutations) => {
     const indicator = document.getElementById(ID);
