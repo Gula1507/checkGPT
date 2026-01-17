@@ -97,6 +97,85 @@
     /**
      * MutationObserver Callback
      */
+    let finalizationTimer = null;
+    let lastReportedContent = "";
+    let lastReportedImageCount = -1;
+
+    /**
+     * Checks if the last message indicates a pending image generation.
+     */
+    function isPendingImage(text) {
+        const indicators = [
+            "Creating image",
+            "Erstelle Bild",
+            "Generiere Bild",
+            "Generating image"
+        ];
+        return indicators.some(indicator => text.includes(indicator));
+    }
+
+    /**
+     * Finalizes the generation process with a stabilization phase.
+     * Polls the DOM to wait for images if "Creating image" text is detected.
+     */
+    function finalizeGeneration(attempt = 1) {
+        // Initial delay 1000ms, subsequent polls 1000ms
+        const delay = 1000;
+        const MAX_ATTEMPTS = 15; // Max 15 seconds wait
+
+        finalizationTimer = setTimeout(() => {
+            const messages = getMessages();
+            const lastMessage = messages[messages.length - 1];
+
+            if (!lastMessage) {
+                // Should not happen, but if no message, just finish.
+                handlePromptDetected();
+                return;
+            }
+
+            const imageCount = countImages(lastMessage);
+            const text = (lastMessage.innerText || "").trim();
+            const pending = isPendingImage(text);
+
+            // Stale Check: If content is IDENTICAL to last report, the DOM hasn't updated yet.
+            // This happens when the Stop button cycles (Text -> Stop disappears -> Image -> Stop appears)
+            // but the Image content hasn't physically replaced the Text content in the DOM yet.
+            const isStale = (text === lastReportedContent && imageCount === lastReportedImageCount);
+
+            console.log(`CheckGPT: Finalize Attempt ${attempt}. Images=${imageCount}, PendingText=${pending}, Stale=${isStale}`);
+
+            // Case 1: Images detected. We accept this as valid immediately (or could check .complete)
+            // For energy calculation, existence is enough.
+            if (imageCount > 0 && !isStale) {
+                handlePromptDetected();
+                return;
+            }
+
+            // Case 2: No images, but text says "Creating image..." OR content is Stale
+            // We wait and retry.
+            if ((pending || isStale) && attempt < MAX_ATTEMPTS) {
+                finalizeGeneration(attempt + 1);
+                return;
+            }
+
+            // Case 3: No images, no specific "creating" text (or timeout reached).
+            // Treat as Text response.
+            // If it is STILL stale after max attempts, we likely shouldn't send anything,
+            // but strictly speaking, we just report what we see.
+            // To be safe against duplicates, we can block it if strict equality holds.
+            if (isStale) {
+                console.log("CheckGPT: Aborting finalization. CPntent remains stale after timeouts.");
+                return;
+            }
+
+            handlePromptDetected();
+
+        }, delay);
+    }
+
+    /**
+     * MutationObserver Callback
+     */
     function onMutation() {
         const stopButton = getStopButton();
 
@@ -105,25 +184,25 @@
             if (!generationRunning) {
                 generationRunning = true;
                 console.log("CheckGPT: Stop button appeared. Generation started.");
+
+                // If we were waiting to finalize the previous one, cancel it.
+                // The new generation takes precedence.
+                if (finalizationTimer) {
+                    clearTimeout(finalizationTimer);
+                    finalizationTimer = null;
+                    console.log("CheckGPT: Inserted new generation, cancelled previous finalization.");
+                }
             }
-            // Update timestamp to keep "alive" if we still wanted timeouts (optional now)
             lastChangeTime = Date.now();
 
         } else {
             // Case B: Generation might have finished (Stop button NOT visible)
             if (generationRunning) {
-                // Determine if it really finished or just flickered.
-                // We use a small buffer or just assume finished.
-                // The previous logic used a timeout, but for "Stop Button" logic, 
-                // disappearance usually means DONE.
-
                 generationRunning = false;
-                console.log("CheckGPT: Stop button disappeared. Generation finished.");
+                console.log("CheckGPT: Stop button disappeared. Generation finished. Starting finalization...");
 
-                // Give the DOM a moment to settle (final text render) before scraping
-                setTimeout(() => {
-                    handlePromptDetected();
-                }, 500);
+                // Start the robust finalization (polling)
+                finalizeGeneration(1);
             }
         }
     }
@@ -132,6 +211,12 @@
      * Feuert das Event, wenn alles fertig ist
      */
     function handlePromptDetected() {
+        // Clear logic to prevent double firing if called directly
+        if (finalizationTimer) {
+            clearTimeout(finalizationTimer);
+            finalizationTimer = null;
+        }
+
         const messages = getMessages();
         const lastMessage = messages[messages.length - 1];
 
@@ -155,6 +240,10 @@
 
         const text = (clonedNode.innerText || "").trim();
         const type = imageCount > 0 ? "IMAGE" : "TEXT";
+
+        // Update Stale Trackers
+        lastReportedContent = text;
+        lastReportedImageCount = imageCount;
 
         console.log(`CheckGPT Report: Type=${type}, Images=${imageCount}, TextLength=${text.length}, TextContent="${text.substring(0, 50)}"`);
 
