@@ -123,8 +123,6 @@ input:checked+.slider::before {
     font-size: 15px;
     text-align: left;
     color: var(--text-muted);
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     /* Grid layout for Icon + Content */
     display: grid;
@@ -152,11 +150,7 @@ input:checked+.slider::before {
     content: "⚡";
 }
 
-.chip:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-color);
-}
+
 
 .chip strong {
     grid-column: 2;
@@ -212,11 +206,6 @@ input:checked+.slider::before {
     color: #15803d;
     /* Green 700 */
     font-size: 20px;
-}
-
-.comparison-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
 }
 
 /* Grid Icons */
