@@ -9,25 +9,34 @@
 
 <body>
     <h3>CheckGPT</h3>
+    <h3>CheckGPT</h3>
 
     <div class="toggle-row">
         <span>Heute</span>
+        <div class="toggle-row">
+            <span>Heute</span>
 
-        <label class="switch">
-            <input type="checkbox" aria-label="Zeitraum umschalten zwischen Heute und Immer" />
-            <span class="slider"></span>
-        </label>
+            <label class="switch">
+                <input type="checkbox" aria-label="Zeitraum umschalten zwischen Heute und Immer" />
+                <span class="slider"></span>
+            </label>
+            <label class="switch">
+                <input type="checkbox" aria-label="Zeitraum umschalten zwischen Heute und Immer" />
+                <span class="slider"></span>
+            </label>
 
+            <span>Immer</span>
+        </div>
         <span>Immer</span>
     </div>
 
     <div class="chips">
         <span class="chip">
-            <strong>3</strong> Prompts geschickt
+            <strong id="stat-prompts">3</strong> Prompts geschickt
         </span>
 
         <span class="chip">
-            <strong>3,56 Wattstunden</strong> verbraucht
+            <strong id="stat-energy">3,56 Wattstunden</strong> verbraucht
         </span>
     </div>
 
@@ -35,7 +44,7 @@
 
     <div class="chips center">
         <span class="chip">
-            <strong>5 m</strong> Auto fahren</span>
+            <strong id="stat-car">5 m</strong> Auto fahren</span>
     </div>
     <h3>Status</h3>
     <div id="status">Prüfe...</div>

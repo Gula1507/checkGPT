@@ -1,4 +1,39 @@
 const ID = "checkgpt-co2-indicator";
+const WRAPPER_ID = "checkgpt-wrapper";
+let calculator = null;
+let lastCalculatedTokenCount = -1;
+let lastCalculatedImageCount = -1;
+let lastCalculatedTimestamp = -1;
+let cachedCo2Value = 0;
+
+(async () => {
+    try {
+        const src = chrome.runtime.getURL("src/utils/calculator.js");
+        calculator = await import(src);
+        updateIndicator(); // Refresh once loaded
+    } catch (err) {
+        console.error("CheckGPT: Could not load calculator module", err);
+    }
+})();
+
+//animation für die zahlen im Indicator
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+
+        obj.innerHTML = (ease * (end - start) + start).toFixed(2);
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            obj.innerHTML = end.toFixed(2);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
 
 function updateIndicator() {
     try {
@@ -8,12 +43,56 @@ function updateIndicator() {
         const form = input.closest("form");
         if (!form) return;
 
+        // -----------------------
+        // Retrieve token count
+        // -----------------------
+        let lastTokenCount = 0;
+        let lastImageCount = 0;
+        let lastTimestamp = 0;
+        try {
+            const history = JSON.parse(localStorage.getItem('tokenUsageHistory') || "[]");
+            if (Array.isArray(history) && history.length > 0) {
+                const lastEntry = history[history.length - 1];
+
+                // HIER PRÜFEN WIR: Objekt oder Zahl?
+                if (typeof lastEntry === 'object' && lastEntry !== null) {
+                    lastTokenCount = lastEntry.tokens || 0;
+                    lastImageCount = lastEntry.imageCount || 0;
+                    lastTimestamp = lastEntry.timestamp || 0;
+                } else {
+                    lastTokenCount = lastEntry; // Fallback für alte Daten
+                }
+            }
+        } catch (e) {
+            console.error("CheckGPT: Error reading token history", e);
+        }
+
+        // Calculate CO2
+        let currentCo2 = 0;
+        if (calculator) {
+            // Recalculate if tokens, image count OR timestamp changed (new generation)
+            if (lastTokenCount !== lastCalculatedTokenCount ||
+                lastImageCount !== lastCalculatedImageCount ||
+                lastTimestamp !== lastCalculatedTimestamp) {
+
+                const kwh = calculator.calculateEnergy(lastTokenCount, lastImageCount);
+                cachedCo2Value = calculator.calculateCO2(kwh);
+
+                lastCalculatedTokenCount = lastTokenCount;
+                lastCalculatedImageCount = lastImageCount;
+                lastCalculatedTimestamp = lastTimestamp;
+            }
+            currentCo2 = cachedCo2Value;
+        }
+
+        // UI Logic
         let indicator = document.getElementById(ID);
 
         if (!indicator) {
             indicator = document.createElement("div");
             indicator.id = ID;
-            indicator.innerHTML = "ca. <strong>15g CO₂e</strong><br>heute verbraucht";
+            // Speichere den initialen Wert
+            indicator.dataset.currentValue = currentCo2;
 
             indicator.style.whiteSpace = "pre-line";
             indicator.style.textAlign = "center";
@@ -29,27 +108,72 @@ function updateIndicator() {
             indicator.style.marginLeft = "12px";
             indicator.style.flexShrink = "0";
 
+            // Initial HTML structure
+            let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
+            indicator.innerHTML = textHTML;
+
             // ➜ NUR daneben einfügen, nie verschieben
             form.after(indicator);
+
+        } else {
+            // styles zurücksetzen, falls das Element schon existierte
+            indicator.style.position = "static";
+            indicator.style.transform = "none";
+
+            // Animation Logic
+            const displayedValue = parseFloat(indicator.dataset.currentValue || "0");
+
+            if (Math.abs(displayedValue - currentCo2) > 0.001) {
+                // Wert hat sich geändert -> Animation triggern!
+                const countElement = indicator.querySelector("#checkgpt-count-anim");
+                if (countElement) {
+                    animateValue(countElement, displayedValue, currentCo2, 1000); // 1s Animation
+                } else {
+                    // Fallback if structure changed
+                    let textHTML = `Last Prompt: <br> <strong><span id="checkgpt-count-anim">${currentCo2.toFixed(2)}</span> g CO2</strong>`;
+                    indicator.innerHTML = textHTML;
+                }
+
+                // Update dataset
+                indicator.dataset.currentValue = currentCo2;
+            }
         }
+
+        // promt-input feld flexibel machen
+        form.style.flex = "1";
+        form.style.width = "auto";
+        form.style.maxWidth = "unset";
+        form.style.margin = "0";
+
     } catch (e) {
         console.warn("CheckGPT: Error updating indicator", e);
     }
 }
 
-function init() {
-    requestAnimationFrame(updateIndicator);
+const observer = new MutationObserver((mutations) => {
+    const indicator = document.getElementById(ID);
+    let shouldUpdate = false;
 
-    new MutationObserver(() => {
-        requestAnimationFrame(updateIndicator);
-    }).observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-}
+    for (const mutation of mutations) {
+        // Ignore mutations from the indicator itself (e.g. animation, style updates)
+        if (indicator && (mutation.target === indicator || indicator.contains(mutation.target))) {
+            continue;
+        }
+        shouldUpdate = true;
+        break;
+    }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-} else {
-    init();
-}
+    if (shouldUpdate) {
+        updateIndicator();
+    }
+});
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+});
+
+window.addEventListener("checkgpt-tokens-updated", (event) => {
+    // Force immediate update when tokens change
+    updateIndicator();
+});
