@@ -1,11 +1,11 @@
 import { isChatGPTTab } from "../utils/tabDetection.js";
-import { calculateEnergy, calculateCO2, calculateCarDistance } from "../utils/calculator.js";
+import { calculateEnergy, calculateCO2 /*, calculateCarDistance*/ } from "../utils/calculator.js";
 
 // Elemente holen
 const toggleCheckbox = document.querySelector('.switch input');
 const elPrompts = document.getElementById("stat-prompts");
 const elEnergy = document.getElementById("stat-energy");
-const elCar = document.getElementById("stat-car");
+// const elCar = document.getElementById("stat-car");
 const status = document.getElementById("status");
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -23,6 +23,14 @@ if (toggleCheckbox) {
         updateStats();
     });
 }
+
+// Listener für Speicher-Änderungen (Live-Updates)
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.tokenUsageHistory) {
+        console.log("CheckGPT: Storage changed, updating popup stats...");
+        updateStats();
+    }
+});
 
 function updateStats() {
     chrome.storage.local.get("tokenUsageHistory", (data) => {
@@ -72,11 +80,11 @@ function updateStats() {
         const totalKWh = calculateEnergy(totalTokens);
         const totalWh = totalKWh * 1000;
         const totalCO2 = calculateCO2(totalKWh);
-        const carMeters = calculateCarDistance(totalCO2);
+        // const carMeters = calculateCarDistance(totalCO2);
 
         // Anzeigen
         if (elPrompts) elPrompts.textContent = promptCount;
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
-        if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
+        // if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
     });
 }
