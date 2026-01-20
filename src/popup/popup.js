@@ -9,10 +9,15 @@ const elEnergy = document.getElementById("stat-energy");
 const status = document.getElementById("status");
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (status) {
-        status.textContent = isChatGPTTab(tabs)
-            ? "✅ ChatGPT erkannt"
-            : "❌ Nicht auf ChatGPT";
+    const statusContainer = document.getElementById("status-container");
+
+    if (statusContainer || !status) {
+        if (isChatGPTTab(tabs)) {
+            statusContainer.style.display = "none";
+    } else {
+        statusContainer.style.display = "block";
+            status.textContent = "❌ Nicht auf ChatGPT";
+    }
     }
     updateStats();
 });
