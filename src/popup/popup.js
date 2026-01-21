@@ -14,13 +14,14 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (statusContainer || !status) {
         if (isChatGPTTab(tabs)) {
             statusContainer.style.display = "none";
-    } else {
-        statusContainer.style.display = "block";
+        } else {
+            statusContainer.style.display = "block";
             status.textContent = "❌ Nicht auf ChatGPT";
+        }
     }
-    }
-    updateStats();
 });
+
+updateStats();
 
 // Listener für den Switch
 if (toggleCheckbox) {
