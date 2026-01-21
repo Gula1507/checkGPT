@@ -1,4 +1,3 @@
-import { isChatGPTTab } from "../utils/tabDetection.js";
 import { calculateEnergy, calculateCO2 /*, calculateCarDistance*/ } from "../utils/calculator.js";
 
 // Elemente holen
@@ -6,20 +5,7 @@ const toggleCheckbox = document.querySelector('.switch input');
 const elPrompts = document.getElementById("stat-prompts");
 const elEnergy = document.getElementById("stat-energy");
 // const elCar = document.getElementById("stat-car");
-const status = document.getElementById("status");
 
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const statusContainer = document.getElementById("status-container");
-
-    if (statusContainer || !status) {
-        if (isChatGPTTab(tabs)) {
-            statusContainer.style.display = "none";
-        } else {
-            statusContainer.style.display = "block";
-            status.textContent = "❌ Nicht auf ChatGPT";
-        }
-    }
-});
 
 updateStats();
 
