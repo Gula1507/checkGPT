@@ -1,10 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "CheckGPT ",
-  "version": "1.11",
-  "description": "Test-Addon zur Berechnung von Tokens je Prompt",
+  "name": "CheckGPT: CO2 Tracker",
+  "version": "1.2",
+  "description": "Berechnet den Energieverbrauch und CO2-Ausstoß von ChatGPT-Prompts in Echtzeit.",
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage"
   ],
   "action": {
     "default_popup": "src/popup/popup.html"
@@ -17,9 +18,19 @@
       "js": [
         "src/content/co2Indicator.js",
         "src/content/promptDetector.js",
-        "src/tokens/tokens.js"
+        "src/utils/tokens.js"
       ],
       "css": []
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/utils/calculator.js"
+      ],
+      "matches": [
+        "https://chatgpt.com/*"
+      ]
     }
   ]
 }
