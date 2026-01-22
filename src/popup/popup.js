@@ -1,19 +1,13 @@
-import { isChatGPTTab } from "../utils/tabDetection.js";
-import { calculateEnergy, calculateCO2, calculateCarDistance } from "../utils/calculator.js";
+import { calculateEnergy, calculateCO2 /*, calculateCarDistance*/ } from "../utils/calculator.js";
 
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const statusContainer = document.getElementById("status-container");
-    const status = document.getElementById("status");
+// Elemente holen
+const toggleCheckbox = document.querySelector('.switch input');
+const elPrompts = document.getElementById("stat-prompts");
+const elEnergy = document.getElementById("stat-energy");
+// const elCar = document.getElementById("stat-car");
 
-    if (!statusContainer || !status) return;
 
-    if (isChatGPTTab(tabs)) {
-        statusContainer.style.display = "none";
-    } else {
-        statusContainer.style.display = "block";
-        status.textContent = "❌ Nicht auf ChatGPT";
-    }
-});
+updateStats();
 
 // Listener für den Switch
 if (toggleCheckbox) {
@@ -22,20 +16,20 @@ if (toggleCheckbox) {
     });
 }
 
+// Listener für Speicher-Änderungen (Live-Updates)
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.tokenUsageHistory) {
+        console.log("CheckGPT: Storage changed, updating popup stats...");
+        updateStats();
+    }
+});
+
 function updateStats() {
     chrome.storage.local.get("tokenUsageHistory", (data) => {
         const history = data.tokenUsageHistory || [];
-        
+
         // Prüfen, ob "Heute" ausgewählt ist
-        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false; 
-        // HINWEIS: Im HTML ist "input checked" meist die rechte Position. 
-        // Prüfe bitte in deinem HTML/CSS: 
-        // Wenn Switch RECHTS (checked) = "Immer"? Oder "Heute"?
-        // Laut deinem Screenshot steht "Heute" links und "Immer" rechts.
-        // Wenn der Regler rechts ist (checked), ist es meistens die zweite Option ("Immer").
-        // Falls "Immer" ausgewählt ist, filtern wir NICHT.
-        
-        // Annahme basierend auf Screenshot: Switch Rechts (Checked) = Immer. Switch Links (Unchecked) = Heute.
+        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false;
         const isAlways = toggleCheckbox && toggleCheckbox.checked;
 
         // Start von Heute (00:00 Uhr)
@@ -70,11 +64,11 @@ function updateStats() {
         const totalKWh = calculateEnergy(totalTokens);
         const totalWh = totalKWh * 1000;
         const totalCO2 = calculateCO2(totalKWh);
-        const carMeters = calculateCarDistance(totalCO2);
+        // const carMeters = calculateCarDistance(totalCO2);
 
         // Anzeigen
         if (elPrompts) elPrompts.textContent = promptCount;
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
-        if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
+        // if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
     });
 }
