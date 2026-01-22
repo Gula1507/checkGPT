@@ -46,7 +46,7 @@ Die Person, die den Branch erstellt hat, sollte diesen auch wieder löschen – 
 - Prüfen, dass in keiner Weise personenbezogene Daten über den Code gespeichert oder offengelegt werden
 - Build ist erfolgreich durchgelaufen
 - QM-Prüfung (funktional und ggf. fachlich) ist abgeschlossen und dokumentiert
-- Pull-Request aus dem Test-Branch wurde vom QM-Prüfer erstellt und vom ursprünglichen Entwickler freigegeben
+- An verantwortlichen Entwickler assignen
 - Relevante Dokumentation (README, Kommentare, Wiki) ist aktualisiert
 - Issue ist in GitHub korrekt abgeschlossen und dem Sprint als „Done“ zugeordnet
 
