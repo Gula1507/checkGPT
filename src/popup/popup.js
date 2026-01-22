@@ -30,14 +30,6 @@ function updateStats() {
 
         // Prüfen, ob "Heute" ausgewählt ist
         const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false;
-        // HINWEIS: Im HTML ist "input checked" meist die rechte Position. 
-        // Prüfe bitte in deinem HTML/CSS: 
-        // Wenn Switch RECHTS (checked) = "Immer"? Oder "Heute"?
-        // Laut deinem Screenshot steht "Heute" links und "Immer" rechts.
-        // Wenn der Regler rechts ist (checked), ist es meistens die zweite Option ("Immer").
-        // Falls "Immer" ausgewählt ist, filtern wir NICHT.
-
-        // Annahme basierend auf Screenshot: Switch Rechts (Checked) = Immer. Switch Links (Unchecked) = Heute.
         const isAlways = toggleCheckbox && toggleCheckbox.checked;
 
         // Start von Heute (00:00 Uhr)
