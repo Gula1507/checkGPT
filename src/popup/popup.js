@@ -1,9 +1,9 @@
-import { 
-    calculateEnergy, 
-    calculateCO2, 
-    calculateSmartphoneCharges, 
-    calculateCarKm, 
-    calculateFootprintPercentage 
+import {
+    calculateEnergy,
+    calculateCO2,
+    calculateSmartphoneCharges,
+    calculateCarKm,
+    calculateFootprintPercentage
 } from "../utils/calculator.js";
 
 // Elemente holen
@@ -62,7 +62,7 @@ function updateStats() {
             }
         });
 
-        // Berechnen der Summen
+        // Berechnen
         let totalTokens = 0;
         let totalImages = 0;
 
@@ -76,7 +76,7 @@ function updateStats() {
         });
 
         const promptCount = filteredHistory.length;
-        
+
         // 1. Energie & CO2 Basis berechnen
         const totalKWh = calculateEnergy(totalTokens, totalImages);
         const totalWh = totalKWh * 1000;
@@ -91,14 +91,14 @@ function updateStats() {
 
         // Prompts
         if (elPrompts) elPrompts.textContent = promptCount;
-        
+
         // Energie (Formatierung: 1.234,56)
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
 
         // Smartphones (z.B. "0,5" oder "12")
         if (elSmartphone) {
-            elSmartphone.textContent = smartphoneCount < 10 
-                ? smartphoneCount.toFixed(1).replace('.', ',') 
+            elSmartphone.textContent = smartphoneCount < 10
+                ? smartphoneCount.toFixed(1).replace('.', ',')
                 : Math.round(smartphoneCount).toString();
         }
 
