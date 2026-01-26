@@ -1,11 +1,20 @@
-import { calculateEnergy, calculateCO2 /*, calculateCarDistance*/ } from "../utils/calculator.js";
+import {
+    calculateEnergy,
+    calculateCO2,
+    calculateSmartphoneCharges,
+    calculateCarKm,
+    calculateFootprintPercentage
+} from "../utils/calculator.js";
 
 // Elemente holen
 const toggleCheckbox = document.querySelector('.switch input');
 const elPrompts = document.getElementById("stat-prompts");
 const elEnergy = document.getElementById("stat-energy");
-// const elCar = document.getElementById("stat-car");
 
+// Neue Vergleichs-Elemente
+const elSmartphone = document.getElementById("stat-smartphone");
+const elCar = document.getElementById("stat-car");
+const elFootprint = document.getElementById("stat-footprint");
 
 updateStats();
 
@@ -55,20 +64,62 @@ function updateStats() {
 
         // Berechnen
         let totalTokens = 0;
+        let totalImages = 0;
+
         filteredHistory.forEach(entry => {
-            if (typeof entry === 'number') totalTokens += entry;
-            else if (entry.tokens) totalTokens += entry.tokens;
+            if (typeof entry === 'number') {
+                totalTokens += entry;
+            } else if (typeof entry === 'object') {
+                totalTokens += (entry.tokens || 0);
+                totalImages += (entry.imageCount || 0);
+            }
         });
 
         const promptCount = filteredHistory.length;
-        const totalKWh = calculateEnergy(totalTokens);
-        const totalWh = totalKWh * 1000;
-        const totalCO2 = calculateCO2(totalKWh);
-        // const carMeters = calculateCarDistance(totalCO2);
 
-        // Anzeigen
+        // 1. Energie & CO2 Basis berechnen
+        const totalKWh = calculateEnergy(totalTokens, totalImages);
+        const totalWh = totalKWh * 1000;
+        const totalCO2Grams = calculateCO2(totalKWh);
+
+        // 2. Vergleichswerte berechnen
+        const smartphoneCount = calculateSmartphoneCharges(totalCO2Grams);
+        const carKm = calculateCarKm(totalCO2Grams);
+        const footprintPercent = calculateFootprintPercentage(totalCO2Grams);
+
+        // --- Anzeigen ---
+
+        // Prompts
         if (elPrompts) elPrompts.textContent = promptCount;
+
+        // Energie (Formatierung: 1.234,56)
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
-        // if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
+
+        // Smartphones (z.B. "0,5" oder "12")
+        if (elSmartphone) {
+            elSmartphone.textContent = smartphoneCount < 10
+                ? smartphoneCount.toFixed(1).replace('.', ',')
+                : Math.round(smartphoneCount).toString();
+        }
+
+        // Auto (km oder m Logik)
+        if (elCar) {
+            if (carKm < 1) {
+                // Unter 1 km zeigen wir Meter an
+                const meters = carKm * 1000;
+                elCar.textContent = `${meters.toFixed(0)} m`;
+            } else {
+                elCar.textContent = `${carKm.toFixed(2).replace('.', ',')} km`;
+            }
+        }
+
+        // Fußabdruck (sehr kleine Werte < 0.001% als "< 0,001%" anzeigen)
+        if (elFootprint) {
+            if (footprintPercent > 0 && footprintPercent < 0.001) {
+                 elFootprint.textContent = "< 0,001%";
+            } else {
+                 elFootprint.textContent = `${footprintPercent.toFixed(4).replace('.', ',')}%`;
+            }
+        }
     });
 }
