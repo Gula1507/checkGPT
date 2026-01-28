@@ -10,6 +10,7 @@ import {
 const toggleCheckbox = document.querySelector('.switch input');
 const elPrompts = document.getElementById("stat-prompts");
 const elEnergy = document.getElementById("stat-energy");
+const elCO2 = document.getElementById("stat-co2");
 
 // Neue Vergleichs-Elemente
 const elSmartphone = document.getElementById("stat-smartphone");
@@ -94,6 +95,12 @@ function updateStats() {
 
         // Energie (Formatierung: 1.234,56)
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
+
+        // CO2 anzeigen
+        // CO₂
+        if (elCO2) {
+            elCO2.textContent = `${totalCO2Grams.toFixed(2).replace('.', ',')} Gramm CO2e`;
+        }
 
         // Smartphones (z.B. "0,5" oder "12")
         if (elSmartphone) {
