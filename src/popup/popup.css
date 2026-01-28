@@ -148,6 +148,10 @@ input:checked+.slider::before {
     content: "⚡";
 }
 
+.chips:not(.center) .chip:nth-child(3)::before {
+    content: "🌍";
+}
+
 .chip strong {
     grid-column: 2;
     grid-row: 1;
