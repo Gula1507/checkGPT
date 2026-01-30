@@ -1,5 +1,4 @@
 const ID = "checkgpt-co2-indicator";
-const WRAPPER_ID = "checkgpt-wrapper";
 let calculator = null;
 let lastCalculatedTokenCount = -1;
 let lastCalculatedImageCount = -1;
@@ -173,7 +172,7 @@ observer.observe(document.body, {
     subtree: true,
 });
 
-window.addEventListener("checkgpt-tokens-updated", (event) => {
+window.addEventListener("checkgpt-tokens-updated", () => {
     // Force immediate update when tokens change
     updateIndicator();
 });

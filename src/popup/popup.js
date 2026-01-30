@@ -39,7 +39,6 @@ function updateStats() {
         const history = data.tokenUsageHistory || [];
 
         // Prüfen, ob "Heute" ausgewählt ist
-        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false;
         const isAlways = toggleCheckbox && toggleCheckbox.checked;
 
         // Start von Heute (00:00 Uhr)
@@ -48,7 +47,6 @@ function updateStats() {
 
         const filteredHistory = history.filter(entry => {
             // Abwärtskompatibilität: Falls alte Einträge nur Zahlen sind
-            let entryVal = entry;
             let entryTime = 0;
 
             if (typeof entry === 'object' && entry !== null) {

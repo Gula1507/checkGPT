@@ -9,8 +9,7 @@
  * 4. Save data with timestamps for history tracking.
  */
 
-let lastProcessedText = "";
-let lastProcessedImageCount = -1;
+
 
 /**
  * Handles the complete lifecycle of a detected prompt response.
@@ -72,15 +71,12 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     const FALLBACK_VALUE = 20;
 
     let textTokens = 0;
-    // let imageTokens = 0; // Removed, counted separately
 
     // Calculate Text Tokens
 
     // Duplicate Check removed: promptDetector.js (Stop Button) now handles unique events.
     // We must process every event here to allow consecutive image generations (which look identical).
 
-    lastProcessedText = cleanText;
-    lastProcessedImageCount = imageCount;
 
     if (cleanText.length > 0) {
       textTokens = Math.ceil(cleanText.length / 4);
