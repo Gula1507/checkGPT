@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 // @vitest-environment jsdom
 
 describe("promptDetector.js", () => {
     let observerCallback;
-    let observerObserve = vi.fn();
-    let observerDisconnect = vi.fn();
 
     beforeEach(async () => {
         document.body.innerHTML = "";

@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
 // @vitest-environment jsdom
 
 // Mock Chrome API before importing the module
@@ -12,8 +13,7 @@ global.chrome = {
 };
 
 describe("tokens.js", () => {
-    let handleGenerationComplete;
-
+    
     beforeEach(async () => {
         // Reset DOM
         document.body.innerHTML = "";
@@ -43,7 +43,7 @@ describe("tokens.js", () => {
         });
 
         // Spy on localStorage
-        const setItemSpy = vi.spyOn(Storage.prototype, "setItem");
+        const setItemSpy = vi.spyOn(window.Storage.prototype, "setItem");
 
         // Dispatch event
         window.dispatchEvent(event);
