@@ -1,19 +1,23 @@
-import { isChatGPTTab } from "../utils/tabDetection.js";
-import { calculateEnergy, calculateCO2, calculateCarDistance } from "../utils/calculator.js";
+import {
+    calculateEnergy,
+    calculateCO2,
+    calculateSmartphoneCharges,
+    calculateCarKm,
+    calculateFootprintPercentage
+} from "../utils/calculator.js";
 
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const statusContainer = document.getElementById("status-container");
-    const status = document.getElementById("status");
+// Elemente holen
+const toggleCheckbox = document.querySelector('.switch input');
+const elPrompts = document.getElementById("stat-prompts");
+const elEnergy = document.getElementById("stat-energy");
+const elCO2 = document.getElementById("stat-co2");
 
-    if (!statusContainer || !status) return;
+// Neue Vergleichs-Elemente
+const elSmartphone = document.getElementById("stat-smartphone");
+const elCar = document.getElementById("stat-car");
+const elFootprint = document.getElementById("stat-footprint");
 
-    if (isChatGPTTab(tabs)) {
-        statusContainer.style.display = "none";
-    } else {
-        statusContainer.style.display = "block";
-        status.textContent = "❌ Nicht auf ChatGPT";
-    }
-});
+updateStats();
 
 // Listener für den Switch
 if (toggleCheckbox) {
@@ -22,20 +26,20 @@ if (toggleCheckbox) {
     });
 }
 
+// Listener für Speicher-Änderungen (Live-Updates)
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.tokenUsageHistory) {
+        console.log("CheckGPT: Storage changed, updating popup stats...");
+        updateStats();
+    }
+});
+
 function updateStats() {
     chrome.storage.local.get("tokenUsageHistory", (data) => {
         const history = data.tokenUsageHistory || [];
-        
+
         // Prüfen, ob "Heute" ausgewählt ist
-        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false; 
-        // HINWEIS: Im HTML ist "input checked" meist die rechte Position. 
-        // Prüfe bitte in deinem HTML/CSS: 
-        // Wenn Switch RECHTS (checked) = "Immer"? Oder "Heute"?
-        // Laut deinem Screenshot steht "Heute" links und "Immer" rechts.
-        // Wenn der Regler rechts ist (checked), ist es meistens die zweite Option ("Immer").
-        // Falls "Immer" ausgewählt ist, filtern wir NICHT.
-        
-        // Annahme basierend auf Screenshot: Switch Rechts (Checked) = Immer. Switch Links (Unchecked) = Heute.
+        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false;
         const isAlways = toggleCheckbox && toggleCheckbox.checked;
 
         // Start von Heute (00:00 Uhr)
@@ -61,20 +65,68 @@ function updateStats() {
 
         // Berechnen
         let totalTokens = 0;
+        let totalImages = 0;
+
         filteredHistory.forEach(entry => {
-            if (typeof entry === 'number') totalTokens += entry;
-            else if (entry.tokens) totalTokens += entry.tokens;
+            if (typeof entry === 'number') {
+                totalTokens += entry;
+            } else if (typeof entry === 'object') {
+                totalTokens += (entry.tokens || 0);
+                totalImages += (entry.imageCount || 0);
+            }
         });
 
         const promptCount = filteredHistory.length;
-        const totalKWh = calculateEnergy(totalTokens);
-        const totalWh = totalKWh * 1000;
-        const totalCO2 = calculateCO2(totalKWh);
-        const carMeters = calculateCarDistance(totalCO2);
 
-        // Anzeigen
+        // 1. Energie & CO2 Basis berechnen
+        const totalKWh = calculateEnergy(totalTokens, totalImages);
+        const totalWh = totalKWh * 1000;
+        const totalCO2Grams = calculateCO2(totalKWh);
+
+        // 2. Vergleichswerte berechnen
+        const smartphoneCount = calculateSmartphoneCharges(totalCO2Grams);
+        const carKm = calculateCarKm(totalCO2Grams);
+        const footprintPercent = calculateFootprintPercentage(totalCO2Grams);
+
+        // --- Anzeigen ---
+
+        // Prompts
         if (elPrompts) elPrompts.textContent = promptCount;
+
+        // Energie (Formatierung: 1.234,56)
         if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
-        if (elCar) elCar.textContent = `${carMeters.toFixed(1).replace('.', ',')} m`;
+
+        // CO2 anzeigen
+        // CO₂
+        if (elCO2) {
+            elCO2.textContent = `${totalCO2Grams.toFixed(2).replace('.', ',')} Gramm CO2e`;
+        }
+
+        // Smartphones (z.B. "0,5" oder "12")
+        if (elSmartphone) {
+            elSmartphone.textContent = smartphoneCount < 10
+                ? smartphoneCount.toFixed(1).replace('.', ',')
+                : Math.round(smartphoneCount).toString();
+        }
+
+        // Auto (km oder m Logik)
+        if (elCar) {
+            if (carKm < 1) {
+                // Unter 1 km zeigen wir Meter an
+                const meters = carKm * 1000;
+                elCar.textContent = `${meters.toFixed(0)} m`;
+            } else {
+                elCar.textContent = `${carKm.toFixed(2).replace('.', ',')} km`;
+            }
+        }
+
+        // Fußabdruck (sehr kleine Werte < 0.001% als "< 0,001%" anzeigen)
+        if (elFootprint) {
+            if (footprintPercent > 0 && footprintPercent < 0.001) {
+                 elFootprint.textContent = "< 0,001%";
+            } else {
+                 elFootprint.textContent = `${footprintPercent.toFixed(4).replace('.', ',')}%`;
+            }
+        }
     });
 }

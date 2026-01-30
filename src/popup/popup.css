@@ -140,17 +140,17 @@ input:checked+.slider::before {
 }
 
 /* Specific Icons */
-/* First chip in the first group: Prompts */
 .chips:not(.center) .chip:nth-child(1)::before {
     content: "💬";
 }
 
-/* Second chip in the first group: Energy */
 .chips:not(.center) .chip:nth-child(2)::before {
     content: "⚡";
 }
 
-
+.chips:not(.center) .chip:nth-child(3)::before {
+    content: "🌍";
+}
 
 .chip strong {
     grid-column: 2;
@@ -172,40 +172,28 @@ input:checked+.slider::before {
     margin-bottom: 12px;
 }
 
-/* Status */
-#status {
-    font-size: 14px;
-    text-align: center;
-    padding: 8px 12px;
-    border-radius: 99px;
-    background: #e2e8f0;
-    color: var(--text-muted);
-    width: fit-content;
-    margin: 0 auto;
-    font-weight: 500;
-}
-
-/* Comparison */
 /* Comparison Grid */
 .comparison-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* Zwei Spalten */
     gap: 12px;
     margin-bottom: 24px;
 }
 
 .comparison-item {
-    background-color: #f0fdf4;
-    /* Green 50 */
+    background-color: #f0fdf4; /* Green 50 */
     border-color: #bbf7d0;
-    color: #166534;
-    /* Green 800 */
+    color: #166534; /* Green 800 */
 }
 
 .comparison-item strong {
-    color: #15803d;
-    /* Green 700 */
+    color: #15803d; /* Green 700 */
     font-size: 20px;
+}
+
+/* Damit der Fußabdruck (3. Element) die volle Breite nimmt */
+.comparison-item.footprint {
+    grid-column: 1 / -1;
 }
 
 /* Grid Icons */
@@ -213,18 +201,14 @@ input:checked+.slider::before {
     content: "🚗";
 }
 
-.comparison-item.bulb::before {
-    content: "💡";
-}
-
 .comparison-item.smartphone::before {
     content: "📱";
 }
 
-
-.comparison-item.tea::before {
-    content: "☕";
+.comparison-item.footprint::before {
+    content: "👣"; /* oder 🌍 */
 }
+
 
 /* Footer Link */
 .footer-link {

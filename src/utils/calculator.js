@@ -14,8 +14,11 @@ export const factors = {
     pue: 1.2 // Power Usage Effectiveness
 };
 
-// Konstante für Auto-Emissionen (ca. 120g/km -> 0.12g/m)
-export const CO2_GRAMS_PER_METER_DRIVEN = 0.12;
+// Neue Vergleichsfaktoren gemäß Akzeptanzkriterien
+// Basis: 1 kg CO2e
+const SMARTPHONES_PER_KG_CO2 = 80.8; 
+const KM_PER_KG_CO2_CAR = 4.02; 
+const DAILY_SUSTAINABLE_KG = 2.74; // Verträgliches Tagesbudget in kg
 
 /**
  * Berechnet den Energieverbrauch in kWh.
@@ -54,12 +57,32 @@ export function calculateCO2(energyKWh) {
     return co2Grams;
 }
 
-// auskommentiert, da noch nicht benötigt
 /**
- * Berechnet die äquivalente Autofahrt-Distanz in Metern
+ * Berechnet, wie viele Smartphones man mit diesem CO2-Ausstoß laden könnte.
  * @param {number} co2Grams - CO2 in Gramm
- * @returns {number} Distanz in Metern
+ * @returns {number} Anzahl Smartphones
  */
-//export function calculateCarDistance(co2Grams) {
-//    return co2Grams / CO2_GRAMS_PER_METER_DRIVEN;
-//}
+export function calculateSmartphoneCharges(co2Grams) {
+    const co2Kg = co2Grams / 1000;
+    return co2Kg * SMARTPHONES_PER_KG_CO2;
+}
+
+/**
+ * Berechnet die äquivalente Autofahrt-Distanz in Kilometern.
+ * @param {number} co2Grams - CO2 in Gramm
+ * @returns {number} Distanz in Kilometern
+ */
+export function calculateCarKm(co2Grams) {
+    const co2Kg = co2Grams / 1000;
+    return co2Kg * KM_PER_KG_CO2_CAR;
+}
+
+/**
+ * Berechnet den Anteil am verträglichen Tagesbudget (2.74 kg).
+ * @param {number} co2Grams - CO2 in Gramm
+ * @returns {number} Prozentanteil (0-100)
+ */
+export function calculateFootprintPercentage(co2Grams) {
+    const co2Kg = co2Grams / 1000;
+    return (co2Kg / DAILY_SUSTAINABLE_KG) * 100;
+}
