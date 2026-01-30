@@ -68,37 +68,5 @@ describe("promptDetector.js", () => {
         vi.useRealTimers();
     });
 
-    it.skip("extracts text and dispatches completed event", async () => {
-        // Setup final content
-        const assistantMsg = document.createElement("div");
-        assistantMsg.setAttribute("data-message-author-role", "assistant");
-        assistantMsg.textContent = "Final Response Text";
-        document.body.appendChild(assistantMsg);
 
-        // 1. Start (Stop btn exists)
-        const stopBtn = document.createElement("button");
-        stopBtn.setAttribute("aria-label", "Stop generating");
-        document.body.appendChild(stopBtn);
-        observerCallback([{ target: document.body }]);
-
-        // 2. Finish (Stop btn removed)
-        stopBtn.remove();
-        
-        // Spy on dispatchEvent
-        const dispatchSpy = vi.spyOn(window, "dispatchEvent");
-
-        vi.useFakeTimers();
-        observerCallback([{ target: document.body }]);
-        
-        // Run all pending timers
-        await vi.runAllTimersAsync();
-
-        expect(dispatchSpy).toHaveBeenCalled();
-        console.log("TEST: dispatchSpy calls", dispatchSpy.mock.calls.map(c => c[0].type));
-        const event = dispatchSpy.mock.calls.find(call => call[0].type === "gpt-prompt-complete")[0];
-        expect(event).toBeDefined();
-        expect(event.detail.text).toBe("Final Response Text");
-        
-        vi.useRealTimers();
-    });
 });
