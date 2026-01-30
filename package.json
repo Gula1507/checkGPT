@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "lint": "echo LINT OK"
+    "lint": "echo LINT OK",
+    "build": "rm -rf dist && mkdir dist && cp -r src manifest.json dist/"
   },
   "devDependencies": {
     "jsdom": "^27.4.0",
