@@ -1,12 +1,12 @@
 # Contributing Guidelines
 ## Ticket-Management
 ### Erstellen
-Beim erstellen von Tickets wird generell auf eine einfache und informative Schreibweise geachtet. Der [Code of Conduct](https://github.com/Gula1507/checkGPT?tab=coc-ov-file) ist einzuhalten.
-Der Ticket-Titel ist kurz und verständlich anzulegen. Fall möglich sollten die Akzeptanzkriterien direkt hinterlegt werden. Andernfalls werden sie später durch das Team ergänzt.
+Beim Erstellen von Tickets wird generell auf eine einfache und informative Schreibweise geachtet. Der [Code of Conduct](https://github.com/Gula1507/checkGPT?tab=coc-ov-file) ist einzuhalten.
+Der Ticket-Titel ist kurz und verständlich anzulegen. Falls Möglich sollten die Akzeptanzkriterien direkt hinterlegt werden. Andernfalls werden sie später durch das Team ergänzt.
 Akzeptanzkriterien sind entweder in Stichpunkten oder Checkbox-Elementen anzulegen
 
-### Label
-Tickets sollten in jeden Fall mindestens ein Label zugeordnet bekommen. Es wird unterschieden zwischen:
+### Labels
+Tickets sollten in jedem Fall mindestens ein Label zugeordnet bekommen. Es wird unterschieden zwischen:
 - Bug: Allgemeine Markierung von Fehlern/Bug Reports
 - DevOps: *intern* Integration und Deployment
 - Documentation: Zur Anpassung von allgemeinen Dokumentationen oder dem Wiki
@@ -39,7 +39,7 @@ bugfix/ticketnummer-name-des-bugfixes
 ### Branch löschen
 Die Person, die den Branch erstellt hat, sollte diesen auch wieder löschen – idealerweise dann, wenn der Branch gemergt wurde oder nicht mehr benötigt wird und die QS abgeschlossen und erfolgreich war.
 
-## DoD
+## Definition of Done (DoD)
 - Issue ist im Sprint Backlog eindeutig beschrieben und vollständig umgesetzt
 - Alle Akzeptanzkriterien (wenn sinnvoll) des Issues sind erfüllt und nachvollziehbar dokumentiert
 - Code ist (falls nötig) im entsprechenden GitHub-Repository committed und mit dem Issue verknüpft

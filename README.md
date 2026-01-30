@@ -12,7 +12,7 @@ Folgen Sie dazu der Anleitung in unserem [Wiki](https://github.com/Gula1507/chec
 
 [Datenbasis](https://github.com/Gula1507/checkGPT/wiki/3.-Datenbasis).
 
-Für Bug Reports oder Feature Requests nutzen Sie bitte [GitHub Issue](https://github.com/Gula1507/checkGPT/issues). 
+Für Bug Reports oder Feature Requests nutzen Sie bitte [GitHub Issues](https://github.com/Gula1507/checkGPT/issues). 
 
 Beachten Sie dabei bitte unseren [Code of Conduct](https://github.com/Gula1507/checkGPT?tab=coc-ov-file) und [Contributing Guidelines](https://github.com/Gula1507/checkGPT?tab=contributing-ov-file).
 
