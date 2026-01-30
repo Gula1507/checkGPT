@@ -5,8 +5,6 @@
 
     let observer;
 
-    // let lastContentHash = ""; // Unused
-    let lastChangeTime = 0; // Used for potential debugging / future timeouts
     let generationRunning = false;
 
     // Legacy timeout removed. Stop-Button logic is now primary.
@@ -52,13 +50,6 @@
         });
 
         return count;
-    }
-
-    /**
-     * Prüft, ob die Generierung abgeschlossen ist (Idle Check)
-     */
-    function checkIdle() {
-        // Legacy idle check disabled in favor of Stop Button detection.
     }
 
     /**
@@ -193,7 +184,6 @@
                     console.log("CheckGPT: Inserted new generation, cancelled previous finalization.");
                 }
             }
-            lastChangeTime = Date.now();
 
         } else {
             // Case B: Generation might have finished (Stop button NOT visible)
