@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "lint": "eslint .",
-    "build": "mkdir -p dist && cp -r src manifest.json dist/"
+    "lint": "eslint ."
   },
   "devDependencies": {
     "eslint": "^8.57.1",
