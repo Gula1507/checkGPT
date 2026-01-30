@@ -1,6 +1,6 @@
 # CheckGPT - Prometheus
 Wir sind Prometheus.
-Für umweltbewusste KI-Nutzer:innen soll unser Browser-Plugin eine fundierte und persönlich nachvoll-ziehbare Einschätzung des ökologischen Impacts der privaten KI-Nutzung anzeigen​
+Für umweltbewusste KI-Nutzer:innen soll unser Browser-Plugin eine fundierte und persönlich nachvollziehbare Einschätzung des ökologischen Impacts der privaten KI-Nutzung anzeigen​
 
 ## Getting Started
 Um das Browser Add-On nutzen zu können, müssen Sie unsere Erweiterung vorerst installieren.
