@@ -20,7 +20,7 @@ Tickets sollten in jedem Fall mindestens ein Label zugeordnet bekommen. Es wird 
 ### Ticket-Management
 - Nach jedem Code-Review und nach der QS sollte das Ticket wieder an den Ticket-Besitzer (die Person, die die Inhalte umsetzt) im Kanban Board zurückgegeben werden.
 - Diese Person verschiebt das Ticket anschließend weiter (In Progress, Code Review bei neuem Code, QS nach neuem Merge). Das hilft, bei den einzelnen Tickets den Überblick zu behalten.
-Nach Bearbeitung des Tickets wird die DoD geprüft. Sind alle Punkte sichergestellt, soll das Ticket geschlossen werden (auf Done setzen)
+Nach Bearbeitung des Tickets wird die Definition of Done (DoD) geprüft. Sind alle Punkte sichergestellt, soll das Ticket geschlossen werden (auf Done setzen)
 - Bei der Sprint Retro und dem Planning werden die geschlossenen Tickets aus dem Done ins Archiv verschoben.
 
 ## Branch-Management
