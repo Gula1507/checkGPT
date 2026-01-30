@@ -12,7 +12,7 @@ Tickets sollten in jedem Fall mindestens ein Label zugeordnet bekommen. Es wird 
 - Documentation: Zur Anpassung von allgemeinen Dokumentationen oder dem Wiki
 - Epic: *intern* Sammlung von User Stories
 - User Story: *intern* User Story erstellt durch das Team oder Transferiert aus einem Feature
-- Feature: Allgemeine Feature Request zur Erweiterung des Tools
+- Feature Request: Allgemeine Feature Request zur Erweiterung des Tools
 - Overhead: *intern* Overhead des gesamten Projekts
 - Product Research: *intern* Beschaffung von Informationen und Nutzungsverhalten zum Produkt
 - Quality & Tests: *intern* Qualitätssicherung und explizite Tests
