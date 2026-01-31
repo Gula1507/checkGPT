@@ -11,7 +11,7 @@ Tickets sollten in jedem Fall mindestens ein Label zugeordnet bekommen. Es wird 
 - DevOps: *intern* Integration und Deployment
 - Documentation: Zur Anpassung von allgemeinen Dokumentationen oder dem Wiki
 - Epic: *intern* Sammlung von User Stories
-- User Story: *intern* User Story erstellt durch das Team oder Transferiert aus einem Feature
+- User Story: *intern* User Story erstellt durch das Team oder transferiert aus einem Feature
 - Feature Request: Allgemeine Feature Request zur Erweiterung des Tools
 - Overhead: *intern* Overhead des gesamten Projekts
 - Product Research: *intern* Beschaffung von Informationen und Nutzungsverhalten zum Produkt
@@ -28,7 +28,7 @@ Nach Bearbeitung des Tickets wird die Definition of Done (DoD) geprüft. Sind al
 Branch-Protection ist aktiv! Eine Pull-Request ist nur auf den Test-Branch zulässig. Die Code-Review findet auf diesem Branch statt. Nach erfolgreicher Überprüfung am Ende eines Sprints oder bei besonderen Feaures wird der Test-Branch in den Main-Branch gemerged.
 
 ### Naming
-Wenn eine neue Pull-Request erstellt und ein Branch angelegt wird, soll ein nachvollziehbares Branch-Naming genutzt werden.
+Wenn eine neue Pull-Request erstellt und ein Branch angelegt wird, soll ein nachvollziehbares Branch-Naming genutzt werden. Dabei sollte sich an der bestehenden Verzeichnisstruktur orientiert werden.
 ````
 Bei neuen Features:
 feature/ticketnummer-name-des-features
