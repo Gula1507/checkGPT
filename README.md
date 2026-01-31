@@ -1,6 +1,6 @@
 # CheckGPT - Prometheus
 Wir sind Prometheus.
-Für umweltbewusste KI-Nutzer:innen soll unser Browser-Plugin eine fundierte und persönlich nachvollziehbare Einschätzung des ökologischen Impacts der privaten KI-Nutzung anzeigen​
+Für umweltbewusste KI-Nutzer:innen soll unser Browser-Plugin eine fundierte und persönlich nachvollziehbare Einschätzung des ökologischen Impacts der privaten KI-Nutzung anzeigen.​
 
 ## Getting Started
 Um das Browser Add-On nutzen zu können, müssen Sie unsere Erweiterung vorerst installieren.
@@ -8,9 +8,8 @@ Um das Browser Add-On nutzen zu können, müssen Sie unsere Erweiterung vorerst 
 Folgen Sie dazu der Anleitung in unserem [Wiki](https://github.com/Gula1507/checkGPT/wiki/1.-Installation).
 
 ## Weitere Informationen
-[Informationen zur Berechnungsgrundlage](https://github.com/Gula1507/checkGPT/wiki/2.-Berechnungsmethodik).
-
-[Datenbasis](https://github.com/Gula1507/checkGPT/wiki/3.-Datenbasis).
+- [Informationen zur Berechnungsgrundlage](https://github.com/Gula1507/checkGPT/wiki/2.-Berechnungsmethodik)
+- [Datenbasis](https://github.com/Gula1507/checkGPT/wiki/3.-Datenbasis)
 
 Für Bug Reports oder Feature Requests nutzen Sie bitte [GitHub Issues](https://github.com/Gula1507/checkGPT/issues). 
 

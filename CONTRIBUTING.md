@@ -2,7 +2,7 @@
 ## Ticket-Management
 ### Erstellen
 Beim Erstellen von Tickets wird generell auf eine einfache und informative Schreibweise geachtet. Der [Code of Conduct](https://github.com/Gula1507/checkGPT?tab=coc-ov-file) ist einzuhalten.
-Der Ticket-Titel ist kurz und verständlich anzulegen. Falls Möglich sollten die Akzeptanzkriterien direkt hinterlegt werden. Andernfalls werden sie später durch das Team ergänzt.
+Der Ticket-Titel ist kurz und verständlich anzulegen. Falls möglich sollten die Akzeptanzkriterien direkt hinterlegt werden. Andernfalls werden sie später durch das Team ergänzt.
 Akzeptanzkriterien sind entweder in Stichpunkten oder Checkbox-Elementen anzulegen
 
 ### Labels
@@ -54,7 +54,7 @@ Die Person, die den Branch erstellt hat, sollte diesen auch wieder löschen – 
 
 ## Releases
 Releases werden normalerweise am Ende eines Sprints über Merge von Test zu Main oder bei besonderen Features als neue Version erstellt.
-Die [Releases](https://github.com/Gula1507/checkGPT/releases) sind über GitHub im entsprechenden Tab vorhanden. Hierbei wird sich an das offozielle [Semantic Versioning](https://semver.org/) gehalten.
+Die [Releases](https://github.com/Gula1507/checkGPT/releases) sind über GitHub im entsprechenden Tab vorhanden. Hierbei wird sich an das offizielle [Semantic Versioning](https://semver.org/) gehalten.
 
 ## Roadmap
 - [Roadmap/Backlog](https://github.com/users/Gula1507/projects/2)
