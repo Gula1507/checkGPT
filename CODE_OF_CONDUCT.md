@@ -48,7 +48,7 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at [Issues](https://github.com/Gula1507/checkGPT/issues).
+reported to the community leaders (Team Prometheus) responsible for enforcement at [Issues](https://github.com/Gula1507/checkGPT/issues).
 
 All complaints will be reviewed and investigated promptly and fairly.
 
