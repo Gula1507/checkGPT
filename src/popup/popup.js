@@ -120,6 +120,12 @@ function updateStats() {
 
         // Fußabdruck (sehr kleine Werte < 0.001% als "< 0,001%" anzeigen)
         if (elFootprint) {
+            // Container ausblenden, wenn "Gesamt" ausgewählt ist, da Tagesbudget-Vergleich dann keinen Sinn ergibt
+            const container = elFootprint.closest('.chip');
+            if (container) {
+                container.style.display = isAlways ? 'none' : '';
+            }
+
             if (footprintPercent > 0 && footprintPercent < 0.001) {
                  elFootprint.textContent = "< 0,001%";
             } else {
