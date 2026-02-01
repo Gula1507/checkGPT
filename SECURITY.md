@@ -4,9 +4,9 @@
 Neue Versionen findest Du in unseren [Releases](https://github.com/Gula1507/checkGPT/releases).
 
 | Version | Supported          |
-| ------- | ------------------ |
-| >1.0.0   | :white_check_mark: |
-| <1.x.x  | :x:                |
+|---------| ------------------ |
+| >1.0.0  | :white_check_mark: |
+| <0.x.x  | :x:                |
 
 ## Reporting a Vulnerability
 
