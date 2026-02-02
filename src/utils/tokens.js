@@ -90,8 +90,6 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
       tokenCount = FALLBACK_VALUE;
     }
 
-    console.log(`CheckGPT: Last response estimated tokens: ${tokenCount} (Type: ${type}, Images: ${imageCount})`);
-
     // ---------------------------------------------------------
     // 3. Persistence Logic (Storage & Sync)
     // ---------------------------------------------------------
@@ -138,8 +136,6 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
         chrome.storage.local.set({ tokenUsageHistory: history });
       }
 
-      console.log(`CheckGPT: Saved response: ${tokenCount} tokens.`);
-
       // Notify UI Components
       // - Triggers update in co2Indicator.js
       window.dispatchEvent(new CustomEvent("checkgpt-tokens-updated", {
@@ -163,11 +159,9 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
  */
 function initialize() {
   window.addEventListener("gpt-prompt-complete", (event) => {
-    console.log("CheckGPT: Token computation triggered by prompt detector.");
     const { text, type, imageCount } = event.detail || {};
     handleGenerationComplete(text, type, imageCount);
   });
-  console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }
 
 // Start the module

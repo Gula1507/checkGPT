@@ -133,8 +133,6 @@
             // but the Image content hasn't physically replaced the Text content in the DOM yet.
             const isStale = (text === lastReportedContent && imageCount === lastReportedImageCount);
 
-            console.log(`CheckGPT: Finalize Attempt ${attempt}. Images=${imageCount}, PendingText=${pending}, Stale=${isStale}`);
-
             // Case 1: Images detected. We accept this as valid immediately (or could check .complete)
             // For energy calculation, existence is enough.
             if (imageCount > 0 && !isStale) {
@@ -155,7 +153,6 @@
             // but strictly speaking, we just report what we see.
             // To be safe against duplicates, we can block it if strict equality holds.
             if (isStale) {
-                console.log("CheckGPT: Aborting finalization. CPntent remains stale after timeouts.");
                 return;
             }
 
@@ -174,14 +171,12 @@
             // Case A: Generation is active (Stop button visible)
             if (!generationRunning) {
                 generationRunning = true;
-                console.log("CheckGPT: Stop button appeared. Generation started.");
 
                 // If we were waiting to finalize the previous one, cancel it.
                 // The new generation takes precedence.
                 if (finalizationTimer) {
                     clearTimeout(finalizationTimer);
                     finalizationTimer = null;
-                    console.log("CheckGPT: Inserted new generation, cancelled previous finalization.");
                 }
             }
 
@@ -189,7 +184,6 @@
             // Case B: Generation might have finished (Stop button NOT visible)
             if (generationRunning) {
                 generationRunning = false;
-                console.log("CheckGPT: Stop button disappeared. Generation finished. Starting finalization...");
 
                 // Start the robust finalization (polling)
                 finalizeGeneration(1);
@@ -235,8 +229,6 @@
         lastReportedContent = text;
         lastReportedImageCount = imageCount;
 
-        console.log(`CheckGPT Report: Type=${type}, Images=${imageCount}, TextLength=${text.length}, TextContent="${text.substring(0, 50)}"`);
-
         // Event an tokens.js senden
         window.dispatchEvent(new CustomEvent("gpt-prompt-complete", {
             detail: {
@@ -261,8 +253,6 @@
         });
 
         // setInterval(checkIdle, 500); // Disabled: Stop Button detection is event-driven
-
-        console.log("CheckGPT: Prompt Detector (Text & Image) active");
     }
 
     if (document.readyState === "loading") {

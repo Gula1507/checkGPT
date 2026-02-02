@@ -36,8 +36,6 @@ export function calculateEnergy(outputTokens, imageCount = 0) {
     const minEnergyWh = 0.01;
     const normalizedEnergyWh = Math.max(totalEnergyWh, minEnergyWh);
 
-    console.log(`CheckGPT: Energy calculated: ${normalizedEnergyWh.toFixed(4)} Wh (Tokens: ${outputTokens}, Images: ${imageCount})`);
-
     // Rückgabe in kWh
     return normalizedEnergyWh / 1000;
 }
@@ -51,8 +49,6 @@ export function calculateCO2(energyKWh) {
     // emissionFactor_us ist kg/kWh, daher * 1000 für Gramm
     const co2Kg = energyKWh * factors.emissionFactor_us * factors.pue;
     const co2Grams = co2Kg * 1000;
-
-    console.log(`CheckGPT: CO2 emission calculated: ${co2Grams.toFixed(4)} g`);
 
     return co2Grams;
 }
