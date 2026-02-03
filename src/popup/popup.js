@@ -29,7 +29,6 @@ if (toggleCheckbox) {
 // Listener für Speicher-Änderungen (Live-Updates)
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.tokenUsageHistory) {
-        console.log("CheckGPT: Storage changed, updating popup stats...");
         updateStats();
     }
 });
@@ -39,7 +38,6 @@ function updateStats() {
         const history = data.tokenUsageHistory || [];
 
         // Prüfen, ob "Heute" ausgewählt ist
-        const showTodayOnly = toggleCheckbox ? !toggleCheckbox.checked : false;
         const isAlways = toggleCheckbox && toggleCheckbox.checked;
 
         // Start von Heute (00:00 Uhr)
@@ -48,7 +46,6 @@ function updateStats() {
 
         const filteredHistory = history.filter(entry => {
             // Abwärtskompatibilität: Falls alte Einträge nur Zahlen sind
-            let entryVal = entry;
             let entryTime = 0;
 
             if (typeof entry === 'object' && entry !== null) {
@@ -122,6 +119,12 @@ function updateStats() {
 
         // Fußabdruck (sehr kleine Werte < 0.001% als "< 0,001%" anzeigen)
         if (elFootprint) {
+            // Container ausblenden, wenn "Gesamt" ausgewählt ist, da Tagesbudget-Vergleich dann keinen Sinn ergibt
+            const container = elFootprint.closest('.chip');
+            if (container) {
+                container.style.display = isAlways ? 'none' : '';
+            }
+
             if (footprintPercent > 0 && footprintPercent < 0.001) {
                  elFootprint.textContent = "< 0,001%";
             } else {

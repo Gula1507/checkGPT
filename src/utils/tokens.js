@@ -9,8 +9,7 @@
  * 4. Save data with timestamps for history tracking.
  */
 
-let lastProcessedText = "";
-let lastProcessedImageCount = -1;
+
 
 /**
  * Handles the complete lifecycle of a detected prompt response.
@@ -72,15 +71,12 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     const FALLBACK_VALUE = 20;
 
     let textTokens = 0;
-    // let imageTokens = 0; // Removed, counted separately
 
     // Calculate Text Tokens
 
     // Duplicate Check removed: promptDetector.js (Stop Button) now handles unique events.
     // We must process every event here to allow consecutive image generations (which look identical).
 
-    lastProcessedText = cleanText;
-    lastProcessedImageCount = imageCount;
 
     if (cleanText.length > 0) {
       textTokens = Math.ceil(cleanText.length / 4);
@@ -93,8 +89,6 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
     if (tokenCount === 0 && cleanText.length === 0 && imageCount === 0) {
       tokenCount = FALLBACK_VALUE;
     }
-
-    console.log(`CheckGPT: Last response estimated tokens: ${tokenCount} (Type: ${type}, Images: ${imageCount})`);
 
     // ---------------------------------------------------------
     // 3. Persistence Logic (Storage & Sync)
@@ -142,8 +136,6 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
         chrome.storage.local.set({ tokenUsageHistory: history });
       }
 
-      console.log(`CheckGPT: Saved response: ${tokenCount} tokens.`);
-
       // Notify UI Components
       // - Triggers update in co2Indicator.js
       window.dispatchEvent(new CustomEvent("checkgpt-tokens-updated", {
@@ -167,11 +159,9 @@ async function handleGenerationComplete(providedText = null, type = "TEXT", imag
  */
 function initialize() {
   window.addEventListener("gpt-prompt-complete", (event) => {
-    console.log("CheckGPT: Token computation triggered by prompt detector.");
     const { text, type, imageCount } = event.detail || {};
     handleGenerationComplete(text, type, imageCount);
   });
-  console.log("CheckGPT: Token extraction module initialized (Passive Mode).");
 }
 
 // Start the module
