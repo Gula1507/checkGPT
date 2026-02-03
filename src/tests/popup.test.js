@@ -88,7 +88,7 @@ describe("popup.js", () => {
 
         // Action: Uncheck (Heute)
         checkbox.checked = false;
-        checkbox.dispatchEvent(new Event('change'));
+        checkbox.dispatchEvent(new window.Event('change'));
 
         // Wait for update
         await new Promise(resolve => setTimeout(resolve, 0));
