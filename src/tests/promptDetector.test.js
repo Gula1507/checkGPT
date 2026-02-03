@@ -7,14 +7,13 @@ describe("promptDetector.js", () => {
     beforeEach(async () => {
         document.body.innerHTML = "";
         vi.clearAllMocks();
-        
+
         // Mock MutationObserver
         global.MutationObserver = vi.fn((cb) => {
-            console.log("TEST: MutationObserver created");
             observerCallback = cb;
             return {
-                observe: (...args) => console.log("TEST: observe called", args),
-                disconnect: () => console.log("TEST: disconnect called"),
+                observe: vi.fn(),
+                disconnect: vi.fn(),
                 takeRecords: vi.fn()
             };
         });
@@ -24,47 +23,35 @@ describe("promptDetector.js", () => {
         await import("../content/promptDetector.js?bust=" + Date.now());
     });
 
-    it("detects Stop button appearance (Generation Started)", async () => {
+    it("fires gpt-prompt-complete when generation finishes", async () => {
+        const eventSpy = vi.fn();
+        window.addEventListener("gpt-prompt-complete", eventSpy);
+
+        const msg = document.createElement("div");
+        msg.setAttribute("data-message-author-role", "assistant");
+        msg.textContent = "Hello from ChatGPT";
+        document.body.appendChild(msg);
+
         // Create Stop button in DOM
         const btn = document.createElement("button");
         btn.setAttribute("aria-label", "Stop generating");
         document.body.appendChild(btn);
-
-        const consoleSpy = vi.spyOn(console, "log");
-
         // Manually trigger observer callback
         observerCallback([{
             target: document.body,
             type: 'childList'
         }]);
-        
-        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Stop button appeared"));
-    });
-
-    it("detects Stop button disappearance (Generation Finished)", async () => {
-        // 1. Simulate Appearance
-        const btn = document.createElement("button");
-        btn.setAttribute("aria-label", "Stop generating");
-        document.body.appendChild(btn);
-        
-        // Trigger start
-        observerCallback([{ target: document.body }]); 
 
         // 2. Simulate Disappearance
         btn.remove();
-        
-        const consoleSpy = vi.spyOn(console, "log");
-        vi.useFakeTimers();
 
-        // Trigger end
+        vi.useFakeTimers();
         observerCallback([{ target: document.body }]);
 
-        // Fast forward finalization
-        await vi.advanceTimersByTimeAsync(1500); 
+        await vi.advanceTimersByTimeAsync(1500);
 
-        expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Generation finished"));
+        expect(eventSpy).toHaveBeenCalled();
+
         vi.useRealTimers();
     });
-
-
 });

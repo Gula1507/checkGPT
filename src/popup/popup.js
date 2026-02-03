@@ -29,7 +29,6 @@ if (toggleCheckbox) {
 // Listener für Speicher-Änderungen (Live-Updates)
 chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.tokenUsageHistory) {
-        console.log("CheckGPT: Storage changed, updating popup stats...");
         updateStats();
     }
 });
