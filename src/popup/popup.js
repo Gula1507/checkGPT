@@ -16,6 +16,7 @@ const elCO2 = document.getElementById("stat-co2");
 const elSmartphone = document.getElementById("stat-smartphone");
 const elCar = document.getElementById("stat-car");
 const elFootprint = document.getElementById("stat-footprint");
+const elFootprintWrapper = document.getElementById("footprint-wrapper");
 
 updateStats();
 
@@ -90,13 +91,12 @@ function updateStats() {
         // Prompts
         if (elPrompts) elPrompts.textContent = promptCount;
 
-        // Energie (Formatierung: 1.234,56)
-        if (elEnergy) elEnergy.textContent = `${totalWh.toFixed(2).replace('.', ',')} Wattstunden`;
+        // Energie (nur Zahl, "Wh" steht im HTML)
+        if (elEnergy) elEnergy.textContent = totalWh.toFixed(2).replace('.', ',');
 
-        // CO2 anzeigen
-        // CO₂
+        // CO2 anzeigen (nur Zahl, "g CO2e" steht im HTML)
         if (elCO2) {
-            elCO2.textContent = `${totalCO2Grams.toFixed(2).replace('.', ',')} Gramm CO2e`;
+            elCO2.textContent = totalCO2Grams.toFixed(2).replace('.', ',');
         }
 
         // Smartphones (z.B. "0,5" oder "12")
@@ -106,7 +106,7 @@ function updateStats() {
                 : Math.round(smartphoneCount).toString();
         }
 
-        // Auto (km oder m Logik)
+        // Auto (km oder m Logik + Einheit)
         if (elCar) {
             if (carKm < 1) {
                 // Unter 1 km zeigen wir Meter an
@@ -117,14 +117,15 @@ function updateStats() {
             }
         }
 
-        // Fußabdruck (sehr kleine Werte < 0.001% als "< 0,001%" anzeigen)
-        if (elFootprint) {
-            // Container ausblenden, wenn "Gesamt" ausgewählt ist, da Tagesbudget-Vergleich dann keinen Sinn ergibt
-            const container = elFootprint.closest('.chip');
-            if (container) {
-                container.style.display = isAlways ? 'none' : '';
-            }
+        // Fußabdruck
+        if (elFootprintWrapper) {
+            // Container ausblenden, wenn "Gesamt" ausgewählt ist
+            // Da der Body eine fixe Höhe hat (520px) und der Footer margin-top: auto hat,
+            // bleibt die Popup-Größe stabil, auch wemm das Element ganz entfernt wird (display: none).
+            elFootprintWrapper.style.display = isAlways ? 'none' : 'flex';
+        }
 
+        if (elFootprint) {
             if (footprintPercent > 0 && footprintPercent < 0.001) {
                  elFootprint.textContent = "< 0,001%";
             } else {

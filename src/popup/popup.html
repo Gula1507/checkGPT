@@ -1,61 +1,94 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
     <meta charset="UTF-8" />
     <title>CheckGPT</title>
     <link rel="stylesheet" href="popup.css">
 </head>
-
 <body>
     <h3>CheckGPT</h3>
 
     <div class="toggle-row">
         <span>Heute</span>
-
         <label class="switch">
             <input type="checkbox" aria-label="Zeitraum umschalten zwischen Heute und Gesamt" checked />
             <span class="slider"></span>
         </label>
-
         <span>Gesamt</span>
     </div>
 
     <div class="chips">
-        <span class="chip">
-            <strong id="stat-prompts">3</strong> Prompts geschickt
-        </span>
+        <!-- Prompts -->
+        <div class="chip">
+            <div class="chip-left">
+                <span class="chip-icon">💬</span>
+                <div class="chip-content">
+                    <strong><span id="stat-prompts">3</span> Prompts</strong>
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Anzahl der geschickten Prompts">ℹ️</span>
+        </div>
 
-        <span class="chip">
-            <strong id="stat-energy">3,56 Wattstunden</strong> verbraucht
-        </span>
+        <!-- Energy -->
+        <div class="chip">
+            <div class="chip-left">
+                <span class="chip-icon">⚡</span>
+                <div class="chip-content">
+                    <strong><span id="stat-energy">3,56</span> Wh</strong>
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Verbrauchte Energie in Wattstunden">ℹ️</span>
+        </div>
 
-        <span class="chip">
-            <strong id="stat-co2">2 CO2e</strong> verursacht
-        </span>
+        <!-- CO2 -->
+        <div class="chip">
+            <div class="chip-left">
+                <span class="chip-icon">🌍</span>
+                <div class="chip-content">
+                    <strong><span id="stat-co2">2</span> g CO2e</strong>
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Verursachte CO2-Emissionen">ℹ️</span>
+        </div>
     </div>
 
     <div class="hint">Das ist etwa wie:</div>
 
     <div class="comparison-grid">
         <div class="chip comparison-item smartphone">
-            <strong id="stat-smartphone">0</strong> Smartphones geladen
+            <div class="chip-left">
+                <span class="chip-icon">📱</span>
+                <div class="chip-content">
+                    <strong id="stat-smartphone">0</strong> Smartphones
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Anzahl geladener Smartphones">ℹ️</span>
         </div>
 
         <div class="chip comparison-item car">
-            <strong id="stat-car">0 m</strong> Gefahrene Kilometer (km)
+            <div class="chip-left">
+                <span class="chip-icon">🚗</span>
+                <div class="chip-content">
+                    <strong id="stat-car">0 m</strong> Auto
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Gefahrene Strecke mit dem Auto">ℹ️</span>
         </div>
 
-        <div class="chip comparison-item footprint">
-            <strong id="stat-footprint">0%</strong> des verträglichen, täglichen CO2-Fußabdrucks
+        <div class="chip comparison-item footprint" id="footprint-wrapper">
+            <div class="chip-left">
+                <span class="chip-icon">👣</span>
+                <div class="chip-content">
+                    <strong id="stat-footprint">0%</strong> <span id="label-footprint">Tgl. CO2-Budget</span>
+                </div>
+            </div>
+            <span class="info-icon" data-tooltip="Anteil am verträglichen täglichen CO2-Fußabdruck">ℹ️</span>
         </div>
     </div>
 
     <div class="footer-link">
-        <a href="https://github.com/Gula1507/checkGPT/wiki/2.-Berechnungsmethodik" target="_blank">Unsere
-            Berechnungsmethodik</a>
+        <a href="https://github.com/Gula1507/checkGPT/wiki/2.-Berechnungsmethodik" target="_blank">Unsere Berechnungsmethodik</a>
     </div>
     <script type="module" src="popup.js"></script>
 </body>
-
 </html>
