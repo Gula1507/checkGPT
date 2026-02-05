@@ -16,15 +16,33 @@ global.chrome = {
 
 describe("popup.js", () => {
     beforeEach(() => {
-        // DOM mocken
+        vi.resetModules(); // IMPORTANT: Reload popup.js to bind to new DOM elements
+
+        // DOM mocken (Updated to match new popup.html structure)
         document.body.innerHTML = `
-            <input type="checkbox" class="switch" />
-            <strong id="stat-prompts"></strong>
-            <strong id="stat-energy"></strong>
-            <strong id="stat-co2"></strong>
+            <div class="toggle-row">
+                <label class="switch">
+                    <input type="checkbox" checked /> <!-- Checked = Gesamt -->
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <!-- Prompts -->
+            <span id="stat-prompts"></span>
+
+            <!-- Energy -->
+            <span id="stat-energy"></span>
+
+            <!-- CO2 -->
+            <span id="stat-co2"></span>
+
+            <!-- Comparisons -->
             <strong id="stat-smartphone"></strong>
             <strong id="stat-car"></strong>
-            <strong id="stat-footprint"></strong>
+            
+            <div id="footprint-wrapper" class="chip comparison-item footprint">
+                <strong id="stat-footprint"></strong>
+            </div>
         `;
 
         // Storage Mock-Daten
@@ -42,13 +60,40 @@ describe("popup.js", () => {
         // popup.js importieren (führt updateStats automatisch aus)
         await import("../popup/popup.js");
 
+        // Wait for execution
+        await new Promise(resolve => setTimeout(resolve, 0));
+
         expect(document.getElementById("stat-prompts").textContent)
             .toBe("2");
 
+        // New format: Just the number, e.g. "3,56"
         expect(document.getElementById("stat-energy").textContent)
-            .toContain("Wattstunden");
+            .toMatch(/^[0-9]+,[0-9]{2}$/); 
 
+        // CO2
         expect(document.getElementById("stat-co2").textContent)
-            .toContain("Gramm CO2e");
+            .toMatch(/^[0-9]+,[0-9]{2}$/);
+    });
+
+    it("hides footprint when toggle is checked (Gesamt) and shows it when unchecked (Heute)", async () => {
+        await import("../popup/popup.js");
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const wrapper = document.getElementById("footprint-wrapper");
+        const checkbox = document.querySelector('input[type="checkbox"]');
+
+        // Initial State: Checked (Gesamt) -> Should be hidden
+        expect(checkbox.checked).toBe(true);
+        expect(wrapper.style.display).toBe('none');
+
+        // Action: Uncheck (Heute)
+        checkbox.checked = false;
+        checkbox.dispatchEvent(new window.Event('change'));
+
+        // Wait for update
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        // Expectation: Visible (display: flex)
+        expect(wrapper.style.display).toBe('flex');
     });
 });
